@@ -1,0 +1,250 @@
+import React, { useState } from 'react';
+import { useTasks } from '../../contexts/TaskContext';
+import { DOMAINS, EVENT_TYPES } from '../../lib/constants';
+import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { cn } from '../../lib/utils';
+import { EditTaskDialog } from '../../components/ui/EditTaskDialog';
+
+export const CalendarFeature = () => {
+    const { tasks, addTask } = useTasks();
+    const [currentDate, setCurrentDate] = useState(new Date());
+
+    // Day View Modal State
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [newTaskText, setNewTaskText] = useState('');
+    const [isEventToggle, setIsEventToggle] = useState(false); // New toggle for modal add
+
+    // Task Edit Modal State
+    const [editingTask, setEditingTask] = useState(null);
+
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+    const next = () => {
+        const newDate = new Date(currentDate);
+        newDate.setMonth(newDate.getMonth() + 1);
+        setCurrentDate(newDate);
+    };
+
+    const prev = () => {
+        const newDate = new Date(currentDate);
+        newDate.setMonth(newDate.getMonth() - 1);
+        setCurrentDate(newDate);
+    };
+
+    const today = new Date();
+    const daysInMonth = [];
+    const startDay = startOfMonth.getDay(); // 0 is Sunday
+
+    for (let i = 0; i < startDay; i++) daysInMonth.push(null);
+    for (let i = 1; i <= endOfMonth.getDate(); i++) {
+        daysInMonth.push(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
+    }
+
+    const handleAddTaskToDate = (e) => {
+        e.preventDefault();
+        if (!newTaskText.trim() || !selectedDate) return;
+
+        const payload = {
+            text: newTaskText,
+            domain: 'work', // Default
+            importance: 3,
+            urgency: 3,
+            deadline: selectedDate.toISOString().split('T')[0],
+            type: isEventToggle ? 'event' : 'task',
+            eventType: isEventToggle ? 'other' : undefined,
+            time: isEventToggle ? '12:00' : undefined // Default time if event
+        };
+
+        addTask(payload);
+        setNewTaskText('');
+    };
+
+    const renderDayCell = (dateObj) => {
+        if (!dateObj) return <div className="bg-slate-50/30 min-h-[80px]"></div>;
+
+        const dateStr = dateObj.toISOString().split('T')[0];
+        const isToday = dateObj.getDate() === today.getDate() && dateObj.getMonth() === today.getMonth();
+        const dayItems = tasks.filter(t => t.deadline === dateStr && !t.completedAt);
+
+        // Sort: Events first (by time), then Tasks
+        dayItems.sort((a, b) => {
+            if (a.type === 'event' && b.type !== 'event') return -1;
+            if (a.type !== 'event' && b.type === 'event') return 1;
+            if (a.type === 'event') return (a.time || '').localeCompare(b.time || '');
+            return 0;
+        });
+
+        return (
+            <div
+                onClick={() => setSelectedDate(dateObj)}
+                className={cn(
+                    "min-h-[80px] p-1 border-t border-l border-slate-100 relative transition-all hover:bg-white cursor-pointer group flex flex-col gap-0.5",
+                    isToday ? 'bg-blue-50/30' : 'bg-slate-50/10'
+                )}
+            >
+                <div className="flex justify-between items-start mb-0.5">
+                    <span className={cn(
+                        "text-[10px] font-bold block w-5 h-5 flex items-center justify-center rounded-full transition-colors",
+                        isToday ? 'bg-blue-600 text-white shadow-md shadow-blue-200' : 'text-slate-400 group-hover:bg-slate-200/50'
+                    )}>
+                        {dateObj.getDate()}
+                    </span>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Plus size={12} className="text-slate-400" />
+                    </div>
+                </div>
+
+                <div className="space-y-0.5 overflow-hidden">
+                    {dayItems.slice(0, 4).map(t => {  // Limit to 4 items preview
+                        if (t.type === 'event') {
+                            return (
+                                <div key={t.id} className="text-[9px] px-1 py-0.5 rounded bg-blue-100 text-blue-700 font-medium truncate flex items-center gap-1 border-l-2 border-blue-500">
+                                    <span className="opacity-75 text-[8px] font-mono leading-none">{t.time}</span>
+                                    {t.text}
+                                </div>
+                            )
+                        }
+                        return (
+                            <div key={t.id} className={`text-[9px] px-1 py-0.5 rounded truncate border-l-2 ${DOMAINS[t.domain].bgLight} ${DOMAINS[t.domain].text} border-${DOMAINS[t.domain].color.split('-')[1]}-500 shadow-sm opacity-80 hover:opacity-100`}>
+                                {t.text}
+                            </div>
+                        );
+                    })}
+                    {dayItems.length > 4 && (
+                        <div className="text-[8px] text-slate-400 text-center font-bold tracking-tight">
+                            + {dayItems.length - 4} more
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="h-full flex flex-col space-y-4">
+            <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200 shadow-sm sticky top-0 z-10 shrink-0">
+                <div className="font-bold text-slate-800 flex items-center justify-between w-full">
+                    <button onClick={prev} className="p-2 hover:bg-slate-100 rounded-lg active:scale-95 transition-transform"><ChevronRight size={18} /></button>
+                    <span className="text-base tracking-tight font-black uppercase">
+                        {currentDate.toLocaleDateString('he-IL', { month: 'long', year: 'numeric' })}
+                    </span>
+                    <button onClick={next} className="p-2 hover:bg-slate-100 rounded-lg active:scale-95 transition-transform"><ChevronLeft size={18} /></button>
+                </div>
+            </div>
+
+            <div className="flex-grow overflow-y-auto rounded-xl shadow-inner border border-slate-200 bg-slate-50 relative">
+                <div className="grid grid-cols-7 bg-white sticky top-0 z-10 shadow-sm">
+                    {['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'].map(d => (
+                        <div key={d} className="py-3 text-center text-xs font-black text-slate-400 bg-slate-50/80 backdrop-blur border-b border-l border-slate-100 last:border-l-0">
+                            {d}
+                        </div>
+                    ))}
+                </div>
+                <div className="grid grid-cols-7 bg-white min-h-[400px]">
+                    {daysInMonth.map((date, i) => (
+                        <div key={i} className="border-b border-l border-slate-100 last:border-l-0 hover:z-10 relative">
+                            {renderDayCell(date)}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Day Detail Modal */}
+            {selectedDate && (
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 sm:p-0 bg-slate-900/20 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setSelectedDate(null)}>
+                    <div
+                        className="bg-white w-full sm:w-96 rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 duration-200 border border-slate-200"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="bg-slate-50 p-4 border-b border-slate-100 flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                                <div className="bg-white p-2 rounded-lg shadow-sm font-bold text-xl font-mono text-slate-800">
+                                    {selectedDate.getDate()}
+                                </div>
+                                <div className="text-sm font-bold text-slate-500 uppercase">
+                                    {selectedDate.toLocaleDateString('he-IL', { weekday: 'long', month: 'long' })}
+                                </div>
+                            </div>
+                            <button onClick={() => setSelectedDate(null)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+                        </div>
+
+                        <div className="p-4 max-h-[50vh] overflow-y-auto space-y-2">
+                            {tasks.filter(t => t.deadline === selectedDate.toISOString().split('T')[0] && !t.completedAt).length === 0 && (
+                                <div className="text-center py-6 text-slate-400">
+                                    <CalendarIcon className="mx-auto mb-2 opacity-50" size={32} />
+                                    <p className="text-xs">No tasks/events for this day</p>
+                                </div>
+                            )}
+                            {tasks.filter(t => t.deadline === selectedDate.toISOString().split('T')[0] && !t.completedAt).sort((a, b) => {
+                                // Same sort: Events first by time
+                                if (a.type === 'event' && b.type !== 'event') return -1;
+                                if (a.type !== 'event' && b.type === 'event') return 1;
+                                if (a.type === 'event') return (a.time || '').localeCompare(b.time || '');
+                                return 0;
+                            }).map(t => {
+                                const isEvent = t.type === 'event';
+
+                                return (
+                                    <div key={t.id} onClick={() => setEditingTask(t)} className={cn(
+                                        "p-3 rounded-xl shadow-sm border transition-colors cursor-pointer group flex justify-between items-center",
+                                        isEvent ? "bg-blue-50 border-blue-100 hover:border-blue-300" : "bg-white border-slate-100 hover:border-slate-300"
+                                    )}>
+                                        <div className="flex items-center gap-2 overflow-hidden">
+                                            {isEvent ? (
+                                                <div className="bg-blue-100 text-blue-600 p-1.5 rounded-lg shrink-0">
+                                                    <Clock size={14} />
+                                                </div>
+                                            ) : (
+                                                <div className={`w-3 h-3 rounded-full ${DOMAINS[t.domain].color} shrink-0`}></div>
+                                            )}
+
+                                            <div className="min-w-0">
+                                                <div className="text-sm font-bold text-slate-700 truncate">{t.text}</div>
+                                                {isEvent && <div className="text-[10px] text-slate-400 font-mono">{t.time || 'All Day'} • {EVENT_TYPES[t.eventType]?.label || 'Event'}</div>}
+                                            </div>
+                                        </div>
+                                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity">Edit</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <form onSubmit={handleAddTaskToDate} className="p-4 bg-slate-50 border-t border-slate-100 flex gap-2">
+                            <div className="flex-grow flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEventToggle(!isEventToggle)}
+                                    className={cn(
+                                        "p-2 rounded-xl border transition-all",
+                                        isEventToggle ? "bg-blue-100 border-blue-300 text-blue-600" : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50"
+                                    )}
+                                    title="Toggle Event/Task"
+                                >
+                                    {isEventToggle ? <Clock size={20} /> : <div className="w-5 h-5 rounded-full bg-slate-300 flex items-center justify-center"><div className="w-2 h-2 bg-white rounded-full"></div></div>}
+                                </button>
+                                <input
+                                    value={newTaskText}
+                                    onChange={e => setNewTaskText(e.target.value)}
+                                    placeholder={isEventToggle ? "Add event..." : "Add task..."}
+                                    className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:border-blue-400 outline-none transition-all focus:ring-2 focus:ring-blue-100"
+                                    autoFocus
+                                />
+                            </div>
+                            <button type="submit" className="bg-slate-900 text-white p-2 rounded-xl hover:bg-black transition-colors shadow-lg active:scale-95">
+                                <Plus size={20} />
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {editingTask && (
+                <EditTaskDialog
+                    task={editingTask}
+                    onClose={() => setEditingTask(null)}
+                />
+            )}
+        </div>
+    );
+};
