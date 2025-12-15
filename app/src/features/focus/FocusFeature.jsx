@@ -105,7 +105,7 @@ export const FocusFeature = () => {
                         </div>
 
                         <div className="z-10 flex flex-col items-center w-full">
-                            <span className={`text-[10px] font-bold tracking-widest uppercase mb-4 opacity-70`}>{DOMAINS[activeTask.domain].label} MODULE</span>
+                            <span className={`text-[10px] font-bold tracking-widest uppercase mb-4 opacity-70`}>מודול {DOMAINS[activeTask.domain].label}</span>
 
                             <h2 className="text-xl md:text-2xl font-black text-center mb-6 leading-tight max-w-xs">{activeTask.text}</h2>
 
@@ -113,22 +113,24 @@ export const FocusFeature = () => {
                                 <div className="font-mono text-5xl font-black tracking-tighter tabular-nums drop-shadow-2xl">
                                     {formatTime(activeTask.elapsedTime || 0)}
                                 </div>
-                                <span className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">Focus Time</span>
+                                <span className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">זמן מיקוד</span>
                             </CircularProgress>
 
                             <div className="flex gap-4 mt-8 w-full justify-center">
                                 <button
                                     onClick={() => toggleTimer(activeTask.id)}
-                                    className="group bg-slate-800 hover:bg-slate-700 p-4 rounded-xl transition-all active:scale-95 border border-slate-700"
+                                    aria-label="עצור טיימר"
+                                    className="group bg-slate-800 hover:bg-slate-700 p-4 rounded-xl transition-all active:scale-95 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-slate-900"
                                 >
                                     <Pause size={24} className="text-white group-hover:text-yellow-400 transition-colors" fill="currentColor" />
                                 </button>
                                 <button
                                     onClick={() => handleComplete(activeTask.id)}
-                                    className="group bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 p-4 rounded-xl shadow-lg shadow-green-900/20 active:scale-95 transition-all flex items-center gap-2 pr-6 pl-5"
+                                    aria-label="סיים משימה"
+                                    className="group bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 p-4 rounded-xl shadow-lg shadow-green-900/20 active:scale-95 transition-all flex items-center gap-2 pr-6 pl-5 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-slate-900"
                                 >
                                     <CheckCircle size={24} className="text-white" />
-                                    <span className="font-bold text-sm">COMPLETE</span>
+                                    <span className="font-bold text-sm">סיים</span>
                                 </button>
                             </div>
                         </div>
@@ -142,16 +144,16 @@ export const FocusFeature = () => {
                         <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 shadow-inner">
                             <Target className="text-slate-300" size={40} />
                         </div>
-                        <h3 className="text-xl font-bold text-slate-700">Ready to Focus?</h3>
-                        <p className="text-sm text-slate-400 max-w-[200px] mt-2">Select the most critical task from your matrix below to begin.</p>
+                        <h3 className="text-xl font-bold text-slate-700">מוכן להתמקד?</h3>
+                        <p className="text-sm text-slate-400 max-w-[200px] mt-2">בחר את המשימה החשובה ביותר מהמטריצה למטה כדי להתחיל.</p>
                     </div>
                 )}
             </div>
 
             {/* Task Queue */}
             <div className="flex items-center justify-between px-2 mt-2">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">UP NEXT</h3>
-                <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded">{sortedTasks.length} PENDING</span>
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">הבא בתור</h3>
+                <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded">{sortedTasks.length} ממתינות</span>
             </div>
 
             <div className="flex-grow overflow-y-auto space-y-2 pr-1 pb-20 mask-bottom">
@@ -179,15 +181,17 @@ export const FocusFeature = () => {
                                 {/* Snooze Button */}
                                 <button
                                     onClick={(e) => { e.stopPropagation(); snoozeTask(task.id); }}
-                                    className="p-2 rounded-full text-slate-400 hover:bg-amber-50 hover:text-amber-500 transition-all active:scale-90"
-                                    title="Snooze 1 Day"
+                                    aria-label="דחה משימה ביום אחד"
+                                    className="p-2 rounded-full text-slate-400 hover:bg-amber-50 hover:text-amber-500 transition-all active:scale-90 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                                    title="דחה יום אחד"
                                 >
                                     <Clock size={16} />
                                 </button>
 
                                 <button
                                     onClick={() => toggleTimer(task.id)}
-                                    className="p-2 rounded-full text-slate-400 hover:bg-blue-50 hover:text-blue-500 transition-all active:scale-90"
+                                    aria-label="הפעל טיימר"
+                                    className="p-2 rounded-full text-slate-400 hover:bg-blue-50 hover:text-blue-500 transition-all active:scale-90 focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 >
                                     <Play size={16} fill="currentColor" />
                                 </button>

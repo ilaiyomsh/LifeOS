@@ -7,18 +7,18 @@ import { cn } from '../../lib/utils';
 import { EditTaskDialog } from '../../components/ui/EditTaskDialog';
 
 const QuadrantBackground = () => (
-    <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 pointer-events-none">
+        <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 pointer-events-none">
         <div className="bg-gradient-to-br from-green-50/80 to-green-100/50 border-r border-b border-slate-200/50 flex items-start justify-start p-4 text-green-900/10 hover:text-green-900/20 transition-colors">
-            <span className="font-black text-5xl uppercase tracking-tighter mix-blend-multiply">Do</span>
+            <span className="font-black text-5xl uppercase tracking-tighter mix-blend-multiply">עשה</span>
         </div>
         <div className="bg-gradient-to-bl from-blue-50/80 to-blue-100/50 border-b border-slate-200/50 flex items-start justify-end p-4 text-blue-900/10 hover:text-blue-900/20 transition-colors">
-            <span className="font-black text-5xl uppercase tracking-tighter mix-blend-multiply">Plan</span>
+            <span className="font-black text-5xl uppercase tracking-tighter mix-blend-multiply">תכנן</span>
         </div>
         <div className="bg-gradient-to-tr from-amber-50/80 to-amber-100/50 border-r border-slate-200/50 flex items-end justify-start p-4 text-amber-900/10 hover:text-amber-900/20 transition-colors">
-            <span className="font-black text-5xl uppercase tracking-tighter mix-blend-multiply">Delegate</span>
+            <span className="font-black text-5xl uppercase tracking-tighter mix-blend-multiply">העבר</span>
         </div>
         <div className="bg-gradient-to-tl from-red-50/80 to-red-100/50 flex items-end justify-end p-4 text-red-900/10 hover:text-red-900/20 transition-colors">
-            <span className="font-black text-5xl uppercase tracking-tighter mix-blend-multiply">Delete</span>
+            <span className="font-black text-5xl uppercase tracking-tighter mix-blend-multiply">מחק</span>
         </div>
     </div>
 );
@@ -49,7 +49,7 @@ export const PlanningFeature = () => {
     const [editingTask, setEditingTask] = useState(null);
 
     // Schedule Panel State
-    const [isScheduleOpen, setIsScheduleOpen] = useState(true);
+    const [isScheduleOpen, setIsScheduleOpen] = useState(false);
 
     const heatmapRef = useRef(null);
 
@@ -79,12 +79,12 @@ export const PlanningFeature = () => {
 
     const handleAiSuggest = async () => {
         if (!tempTask.text.trim()) {
-            setAiReasoning('Please enter task text first.');
+            setAiReasoning('אנא הזן טקסט משימה תחילה.');
             return;
         }
 
         if (!API_KEY) {
-            setAiReasoning('GEMINI API KEY MISSING.');
+            setAiReasoning('מפתח API של GEMINI חסר.');
             return;
         }
 
@@ -101,7 +101,7 @@ export const PlanningFeature = () => {
             setAiReasoning(result.reasoning);
         } catch (error) {
             console.error(error);
-            setAiReasoning(error.message || 'AI Analysis Failed.');
+            setAiReasoning(error.message || 'ניתוח AI נכשל.');
         } finally {
             setAiAnalyzing(false);
         }
@@ -135,12 +135,13 @@ export const PlanningFeature = () => {
             <div className="flex-grow flex flex-col h-full space-y-4 relative transition-all duration-300">
                 <div className="flex justify-between items-end px-2 shrink-0">
                     <div>
-                        <h2 className="text-2xl font-black text-slate-800 tracking-tight">Eisenhower Matrix</h2>
-                        <p className="text-xs text-slate-500 font-medium">Prioritize tasks based on urgency & importance</p>
+                        <h2 className="text-2xl font-black text-slate-800 tracking-tight">מטריצת אייזנהאואר</h2>
+                        <p className="text-xs text-slate-500 font-medium">עדיפות משימות לפי דחיפות וחשיבות</p>
                     </div>
                     <button
                         onClick={() => setIsScheduleOpen(!isScheduleOpen)}
-                        className="p-2 bg-white rounded-xl shadow-sm border border-slate-200 text-slate-500 transition-colors hover:text-blue-600"
+                        aria-label={isScheduleOpen ? "סגור לוח זמנים" : "פתח לוח זמנים"}
+                        className="p-2 bg-white rounded-xl shadow-sm border border-slate-200 text-slate-500 transition-colors hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     >
                         {isScheduleOpen ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
                     </button>
@@ -175,7 +176,14 @@ export const PlanningFeature = () => {
                                     : undefined
                             }}
                         >
-                            <button type="button" onClick={() => setIsAdding(false)} className="absolute left-3 top-3 text-slate-300 hover:text-red-500 transition-colors"><X size={20} /></button>
+                            <button 
+                                type="button" 
+                                onClick={() => setIsAdding(false)} 
+                                aria-label="סגור"
+                                className="absolute left-3 top-3 text-slate-300 hover:text-red-500 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400 rounded"
+                            >
+                                <X size={20} />
+                            </button>
 
                             <form onSubmit={handleSave} className="space-y-4">
 
@@ -186,13 +194,15 @@ export const PlanningFeature = () => {
                                         value={tempTask.text}
                                         onChange={e => setTempTask(prev => ({ ...prev, text: e.target.value }))}
                                         placeholder="משימה חדשה..."
+                                        aria-label="טקסט המשימה"
                                         className="w-full text-xl font-bold border rounded-xl border-slate-200 focus:border-blue-400 focus:ring-4 focus:ring-blue-50 outline-none py-3 px-4 pl-12 bg-white text-slate-800 placeholder:text-slate-300 text-right shadow-sm transition-all"
                                     />
                                     <button
                                         type="button"
                                         onClick={handleAiSuggest}
                                         disabled={aiAnalyzing}
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-500 hover:bg-violet-50 p-1.5 rounded-lg transition-colors"
+                                        aria-label="הצע ניתוח AI"
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-500 hover:bg-violet-50 p-1.5 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-violet-400 disabled:opacity-50"
                                     >
                                         {aiAnalyzing ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
                                     </button>
@@ -296,7 +306,10 @@ export const PlanningFeature = () => {
 
                                 </div>
 
-                                <button type="submit" className="w-full bg-slate-900 hover:bg-black text-white py-3 rounded-xl text-sm font-bold shadow-lg shadow-slate-900/20 active:scale-[0.98] transition-all">
+                                <button 
+                                    type="submit" 
+                                    className="w-full bg-slate-900 hover:bg-black text-white py-3 rounded-xl text-sm font-bold shadow-lg shadow-slate-900/20 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+                                >
                                     הוסף למפה
                                 </button>
                             </form>
@@ -359,14 +372,20 @@ export const PlanningFeature = () => {
                 isScheduleOpen ? "translate-x-0 opacity-100" : "translate-x-full md:translate-x-0 md:w-0 md:opacity-0 md:overflow-hidden"
             )}>
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                    <h3 className="font-bold text-slate-700 flex items-center gap-2"><CalendarIcon size={16} /> Schedule</h3>
-                    <button onClick={() => setIsScheduleOpen(false)} className="text-slate-400 hover:text-slate-600 md:hidden"><X size={16} /></button>
+                    <h3 className="font-bold text-slate-700 flex items-center gap-2"><CalendarIcon size={16} /> לוח זמנים</h3>
+                    <button 
+                        onClick={() => setIsScheduleOpen(false)} 
+                        aria-label="סגור לוח זמנים"
+                        className="text-slate-400 hover:text-slate-600 md:hidden focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
+                    >
+                        <X size={16} />
+                    </button>
                 </div>
 
                 <div className="flex-grow overflow-y-auto space-y-3 pr-2 scrollbar-hide">
                     {upcomingEvents.length === 0 ? (
                         <div className="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                            <p className="text-xs text-slate-400">No upcoming events</p>
+                            <p className="text-xs text-slate-400">אין אירועים קרובים</p>
                         </div>
                     ) : (
                         upcomingEvents.map(event => {
@@ -382,7 +401,7 @@ export const PlanningFeature = () => {
                                     </div>
                                     <div className="flex-grow min-w-0">
                                         <div className="text-xs font-bold text-slate-700 truncate">{event.text}</div>
-                                        <div className="text-[10px] text-slate-400">{isEventToday ? 'Today' : new Date(event.deadline).toLocaleDateString('he-IL')} • {EVENT_TYPES[event.eventType]?.label}</div>
+                                        <div className="text-[10px] text-slate-400">{isEventToday ? 'היום' : new Date(event.deadline).toLocaleDateString('he-IL')} • {EVENT_TYPES[event.eventType]?.label}</div>
                                     </div>
                                 </div>
                             );

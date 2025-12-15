@@ -30,7 +30,13 @@ export const SettingsDialog = ({ onClose }) => {
 
                 <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h2 className="text-lg font-black text-slate-800">הגדרות מערכת</h2>
-                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+                    <button 
+                        onClick={onClose} 
+                        aria-label="סגור הגדרות"
+                        className="text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
+                    >
+                        <X size={20} />
+                    </button>
                 </div>
 
                 <div className="p-6 space-y-6">
@@ -41,7 +47,8 @@ export const SettingsDialog = ({ onClose }) => {
                         <p className="text-xs text-slate-500">הורד קובץ גיבוי של כל המשימות שלך למחשב.</p>
                         <button
                             onClick={handleExport}
-                            className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors"
+                            aria-label="הורד גיבוי נתונים"
+                            className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
                         >
                             <Download size={18} /> הורד גיבוי (JSON)
                         </button>
@@ -56,7 +63,8 @@ export const SettingsDialog = ({ onClose }) => {
                         {!confirmReset ? (
                             <button
                                 onClick={() => setConfirmReset(true)}
-                                className="w-full flex items-center justify-center gap-2 border border-red-100 bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 rounded-xl transition-colors"
+                                aria-label="איפוס מערכת"
+                                className="w-full flex items-center justify-center gap-2 border border-red-100 bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
                             >
                                 <Trash2 size={18} /> איפוס מערכת
                             </button>
@@ -66,13 +74,15 @@ export const SettingsDialog = ({ onClose }) => {
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => setConfirmReset(false)}
-                                        className="flex-1 bg-white border border-slate-200 text-slate-600 py-2 rounded-lg text-xs font-bold"
+                                        aria-label="ביטול איפוס"
+                                        className="flex-1 bg-white border border-slate-200 text-slate-600 py-2 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-slate-400"
                                     >
                                         ביטול
                                     </button>
                                     <button
                                         onClick={handleReset}
-                                        className="flex-1 bg-red-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-red-700"
+                                        aria-label="אישור מחיקת כל הנתונים"
+                                        className="flex-1 bg-red-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
                                     >
                                         כן, מחק הכל
                                     </button>

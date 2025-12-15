@@ -26,13 +26,17 @@ export const Shell = ({ children, activeTab, onTabChange }) => {
                 <div className="flex flex-col">
                     <div className="flex items-center gap-3">
                         <h1 className="text-lg font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-400">LifeOS V2.5</h1>
-                        <button onClick={() => setIsSettingsOpen(true)} className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-slate-800">
+                        <button 
+                            onClick={() => setIsSettingsOpen(true)} 
+                            aria-label="הגדרות"
+                            className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-slate-900"
+                        >
                             <Settings size={16} />
                         </button>
                     </div>
                     {/* XP Progress */}
                     <div className="flex items-center gap-2 text-[9px] text-slate-400 mt-0.5">
-                        <span className="flex items-center gap-0.5 text-yellow-500 font-bold"><Trophy size={10} /> LVL {level}</span>
+                        <span className="flex items-center gap-0.5 text-yellow-500 font-bold"><Trophy size={10} /> רמה {level}</span>
                         <div className="w-16 h-1.5 bg-slate-700 rounded-full overflow-hidden">
                             <div className="h-full bg-gradient-to-r from-yellow-600 to-yellow-400 transition-all duration-500" style={{ width: `${(xp % 1000) / 10}%` }}></div>
                         </div>
@@ -63,7 +67,9 @@ export const Shell = ({ children, activeTab, onTabChange }) => {
                                 <button
                                     key={tab.id}
                                     onClick={() => onTabChange(tab.id)}
-                                    className="relative -top-5 group"
+                                    aria-label={tab.label}
+                                    aria-current={isActive ? 'page' : undefined}
+                                    className="relative -top-5 group focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-white rounded-full"
                                 >
                                     <div className={cn(
                                         "w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all transform",
@@ -84,8 +90,10 @@ export const Shell = ({ children, activeTab, onTabChange }) => {
                             <button
                                 key={tab.id}
                                 onClick={() => onTabChange(tab.id)}
+                                aria-label={tab.label}
+                                aria-current={isActive ? 'page' : undefined}
                                 className={cn(
-                                    "flex flex-col items-center justify-center w-14 h-full transition-all",
+                                    "flex flex-col items-center justify-center w-14 h-full transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-white rounded-lg",
                                     isActive ? "text-blue-600" : "text-slate-400 hover:text-slate-600"
                                 )}
                             >

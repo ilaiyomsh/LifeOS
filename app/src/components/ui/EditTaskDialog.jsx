@@ -32,11 +32,17 @@ export const EditTaskDialog = ({ task, onClose }) => {
                         <input
                             value={editedTask.text}
                             onChange={e => setEditedTask({ ...editedTask, text: e.target.value })}
-                            className="text-lg font-bold text-slate-800 border-b border-transparent focus:border-slate-300 outline-none w-full bg-transparent placeholder:text-slate-300"
+                            aria-label="שם המשימה"
+                            className="text-lg font-bold text-slate-800 border-b border-transparent focus:border-slate-300 outline-none w-full bg-transparent placeholder:text-slate-300 focus:ring-2 focus:ring-blue-100 rounded"
                             placeholder="שם המשימה..."
                             autoFocus
                         />
-                        <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+                        <button 
+                            type="button" 
+                            onClick={onClose} 
+                            aria-label="סגור"
+                            className="text-slate-400 hover:text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
+                        >
                             <X size={20} />
                         </button>
                     </div>
@@ -94,12 +100,13 @@ export const EditTaskDialog = ({ task, onClose }) => {
                     {/* Deadline */}
                     <div className="relative">
                         <CalendarIcon size={16} className="absolute left-3 top-2.5 text-slate-400 pointer-events-none" />
-                        <input
-                            type="date"
-                            value={editedTask.deadline}
-                            onChange={e => setEditedTask({ ...editedTask, deadline: e.target.value })}
-                            className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl py-2 pl-10 pr-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all font-medium"
-                        />
+                            <input
+                                type="date"
+                                value={editedTask.deadline}
+                                onChange={e => setEditedTask({ ...editedTask, deadline: e.target.value })}
+                                aria-label="תאריך יעד"
+                                className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl py-2 pl-10 pr-4 outline-none focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                            />
                     </div>
 
                     {/* Actions */}
@@ -107,13 +114,15 @@ export const EditTaskDialog = ({ task, onClose }) => {
                         <button
                             type="button"
                             onClick={handleDelete}
-                            className="flex-1 bg-red-50 text-red-600 hover:bg-red-100 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors"
+                            aria-label="מחק משימה"
+                            className="flex-1 bg-red-50 text-red-600 hover:bg-red-100 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
                         >
                             <Trash2 size={16} /> מחק
                         </button>
                         <button
                             type="submit"
-                            className="flex-[2] bg-slate-900 text-white hover:bg-black py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10 transition-transform active:scale-95"
+                            aria-label="שמור שינויים"
+                            className="flex-[2] bg-slate-900 text-white hover:bg-black py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10 transition-transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
                         >
                             <Save size={16} /> שמור שינויים
                         </button>

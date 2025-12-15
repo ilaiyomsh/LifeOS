@@ -40,7 +40,7 @@ export const ScheduleFeature = () => {
         setIsOptimizing(true);
 
         if (!API_KEY) {
-            alert('API Key missing');
+            alert('מפתח API חסר');
             setIsOptimizing(false);
             return;
         }
@@ -55,7 +55,7 @@ export const ScheduleFeature = () => {
 
         } catch (e) {
             console.error("Optimize failed", e);
-            alert("Optimization failed");
+            alert("האופטימיזציה נכשלה");
         } finally {
             setIsOptimizing(false);
         }
@@ -67,17 +67,18 @@ export const ScheduleFeature = () => {
                 <div className="flex justify-between items-center">
                     <div>
                         <h2 className="font-bold text-slate-800 flex items-center gap-2 text-sm md:text-base">
-                            <Sun className="text-orange-500" size={18} /> Daily Schedule
+                            <Sun className="text-orange-500" size={18} /> לוח זמנים יומי
                         </h2>
-                        <p className="text-[10px] text-slate-500">Optimized plan for today</p>
+                        <p className="text-[10px] text-slate-500">תוכנית מותאמת להיום</p>
                     </div>
                     <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-lg border border-slate-100">
-                        <label className="text-[10px] font-bold text-slate-500">Start:</label>
+                        <label className="text-[10px] font-bold text-slate-500">התחלה:</label>
                         <input
                             type="time"
                             value={startTime}
                             onChange={(e) => setStartTime(e.target.value)}
-                            className="bg-transparent text-sm font-mono font-bold text-slate-800 outline-none w-16"
+                            aria-label="שעת התחלה"
+                            className="bg-transparent text-sm font-mono font-bold text-slate-800 outline-none w-16 focus:ring-2 focus:ring-blue-400 rounded"
                         />
                     </div>
                 </div>
@@ -85,10 +86,11 @@ export const ScheduleFeature = () => {
                 <button
                     onClick={handleAiOptimize}
                     disabled={isOptimizing}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white p-2 rounded-lg text-xs font-bold shadow-md active:scale-95 transition-all"
+                    aria-label="אופטימיזציה אוטומטית עם AI"
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white p-2 rounded-lg text-xs font-bold shadow-md active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 disabled:opacity-50"
                 >
                     {isOptimizing ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                    Auto-Schedule with Gemini
+                    תזמון אוטומטי עם Gemini
                 </button>
             </div>
 
@@ -98,7 +100,7 @@ export const ScheduleFeature = () => {
                 {scheduleItems.length === 0 ? (
                     <div className="text-center py-12 text-slate-400 flex flex-col items-center">
                         <Sun size={48} className="mb-2 opacity-20" />
-                        <p className="text-sm">No active tasks for today.</p>
+                        <p className="text-sm">אין משימות פעילות להיום.</p>
                     </div>
                 ) : scheduleItems.map((item) => (
                     <div key={item.id} className="relative z-10 flex gap-3 group animate-fadeIn">
@@ -115,8 +117,8 @@ export const ScheduleFeature = () => {
                                     <h3 className="font-bold text-slate-800 text-sm mt-1 line-clamp-1">{item.text}</h3>
                                 </div>
                                 <div className="text-right min-w-[50px]">
-                                    <span className="text-[10px] text-slate-400 block font-mono">{item.duration || 60}m</span>
-                                    <span className="text-[9px] text-slate-300 block mt-0.5">until {item.end}</span>
+                                    <span className="text-[10px] text-slate-400 block font-mono">{item.duration || 60}ד</span>
+                                    <span className="text-[9px] text-slate-300 block mt-0.5">עד {item.end}</span>
                                 </div>
                             </div>
                         </div>

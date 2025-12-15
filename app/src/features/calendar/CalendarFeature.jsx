@@ -113,7 +113,7 @@ export const CalendarFeature = () => {
                     })}
                     {dayItems.length > 4 && (
                         <div className="text-[8px] text-slate-400 text-center font-bold tracking-tight">
-                            + {dayItems.length - 4} more
+                            + {dayItems.length - 4} נוספות
                         </div>
                     )}
                 </div>
@@ -125,11 +125,23 @@ export const CalendarFeature = () => {
         <div className="h-full flex flex-col space-y-4">
             <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200 shadow-sm sticky top-0 z-10 shrink-0">
                 <div className="font-bold text-slate-800 flex items-center justify-between w-full">
-                    <button onClick={prev} className="p-2 hover:bg-slate-100 rounded-lg active:scale-95 transition-transform"><ChevronRight size={18} /></button>
+                    <button 
+                        onClick={prev} 
+                        aria-label="חודש קודם"
+                        className="p-2 hover:bg-slate-100 rounded-lg active:scale-95 transition-transform focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
+                        <ChevronRight size={18} />
+                    </button>
                     <span className="text-base tracking-tight font-black uppercase">
                         {currentDate.toLocaleDateString('he-IL', { month: 'long', year: 'numeric' })}
                     </span>
-                    <button onClick={next} className="p-2 hover:bg-slate-100 rounded-lg active:scale-95 transition-transform"><ChevronLeft size={18} /></button>
+                    <button 
+                        onClick={next} 
+                        aria-label="חודש הבא"
+                        className="p-2 hover:bg-slate-100 rounded-lg active:scale-95 transition-transform focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
+                        <ChevronLeft size={18} />
+                    </button>
                 </div>
             </div>
 
@@ -166,14 +178,20 @@ export const CalendarFeature = () => {
                                     {selectedDate.toLocaleDateString('he-IL', { weekday: 'long', month: 'long' })}
                                 </div>
                             </div>
-                            <button onClick={() => setSelectedDate(null)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+                            <button 
+                                onClick={() => setSelectedDate(null)} 
+                                aria-label="סגור"
+                                className="text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
+                            >
+                                <X size={20} />
+                            </button>
                         </div>
 
                         <div className="p-4 max-h-[50vh] overflow-y-auto space-y-2">
                             {tasks.filter(t => t.deadline === selectedDate.toISOString().split('T')[0] && !t.completedAt).length === 0 && (
                                 <div className="text-center py-6 text-slate-400">
                                     <CalendarIcon className="mx-auto mb-2 opacity-50" size={32} />
-                                    <p className="text-xs">No tasks/events for this day</p>
+                                    <p className="text-xs">אין משימות/אירועים ליום זה</p>
                                 </div>
                             )}
                             {tasks.filter(t => t.deadline === selectedDate.toISOString().split('T')[0] && !t.completedAt).sort((a, b) => {
@@ -201,10 +219,10 @@ export const CalendarFeature = () => {
 
                                             <div className="min-w-0">
                                                 <div className="text-sm font-bold text-slate-700 truncate">{t.text}</div>
-                                                {isEvent && <div className="text-[10px] text-slate-400 font-mono">{t.time || 'All Day'} • {EVENT_TYPES[t.eventType]?.label || 'Event'}</div>}
+                                                {isEvent && <div className="text-[10px] text-slate-400 font-mono">{t.time || 'כל היום'} • {EVENT_TYPES[t.eventType]?.label || 'אירוע'}</div>}
                                             </div>
                                         </div>
-                                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity">Edit</span>
+                                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity">ערוך</span>
                                     </div>
                                 );
                             })}
@@ -215,23 +233,29 @@ export const CalendarFeature = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsEventToggle(!isEventToggle)}
+                                    aria-label={isEventToggle ? "החלף למשימה" : "החלף לאירוע"}
                                     className={cn(
-                                        "p-2 rounded-xl border transition-all",
+                                        "p-2 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-blue-400",
                                         isEventToggle ? "bg-blue-100 border-blue-300 text-blue-600" : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50"
                                     )}
-                                    title="Toggle Event/Task"
+                                    title={isEventToggle ? "החלף למשימה" : "החלף לאירוע"}
                                 >
                                     {isEventToggle ? <Clock size={20} /> : <div className="w-5 h-5 rounded-full bg-slate-300 flex items-center justify-center"><div className="w-2 h-2 bg-white rounded-full"></div></div>}
                                 </button>
                                 <input
                                     value={newTaskText}
                                     onChange={e => setNewTaskText(e.target.value)}
-                                    placeholder={isEventToggle ? "Add event..." : "Add task..."}
+                                    placeholder={isEventToggle ? "הוסף אירוע..." : "הוסף משימה..."}
+                                    aria-label={isEventToggle ? "טקסט אירוע" : "טקסט משימה"}
                                     className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:border-blue-400 outline-none transition-all focus:ring-2 focus:ring-blue-100"
                                     autoFocus
                                 />
                             </div>
-                            <button type="submit" className="bg-slate-900 text-white p-2 rounded-xl hover:bg-black transition-colors shadow-lg active:scale-95">
+                            <button 
+                                type="submit" 
+                                aria-label={isEventToggle ? "הוסף אירוע" : "הוסף משימה"}
+                                className="bg-slate-900 text-white p-2 rounded-xl hover:bg-black transition-colors shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+                            >
                                 <Plus size={20} />
                             </button>
                         </form>
