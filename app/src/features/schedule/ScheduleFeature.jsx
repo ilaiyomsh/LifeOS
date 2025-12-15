@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useTasks } from '../../contexts/TaskContext';
-import { DOMAINS, API_KEY } from '../../lib/constants';
+import { DOMAINS, API_KEY, EVENT_TYPES } from '../../lib/constants';
 import { optimizeScheduleWithAI } from '../../lib/ai';
-import { Sun, Sparkles, Loader2 } from 'lucide-react';
+import { Sun, Sparkles, Loader2, Plus, Clock, X } from 'lucide-react';
+import { cn } from '../../lib/utils';
 
 const addMinutesToTime = (timeStr, minutesToAdd) => {
     const [hours, mins] = timeStr.split(':').map(Number);
@@ -12,10 +13,16 @@ const addMinutesToTime = (timeStr, minutesToAdd) => {
 };
 
 export const ScheduleFeature = () => {
-    const { tasks, updateTask, tasks: allTasks } = useTasks();
+    const { tasks, updateTask, addTask, tasks: allTasks } = useTasks();
 
     const [startTime, setStartTime] = useState('08:00');
     const [isOptimizing, setIsOptimizing] = useState(false);
+    const [isAddingEvent, setIsAddingEvent] = useState(false);
+    const [newEventText, setNewEventText] = useState('');
+    const [eventStartTime, setEventStartTime] = useState('09:00');
+    const [eventEndTime, setEventEndTime] = useState('10:00');
+    const [eventType, setEventType] = useState('other');
+    const [eventDate, setEventDate] = useState(new Date().toISOString().split('T')[0]);
 
     const todaysTasks = useMemo(() => {
         return tasks.filter(t => !t.completedAt && t.type !== 'event');
@@ -61,6 +68,28 @@ export const ScheduleFeature = () => {
         }
     };
 
+    const handleAddEvent = (e) => {
+        e.preventDefault();
+        if (!newEventText.trim()) return;
+
+        const payload = {
+            text: newEventText,
+            type: 'event',
+            eventType: eventType,
+            startTime: eventStartTime,
+            endTime: eventEndTime,
+            time: eventStartTime, // Keep for backward compatibility
+            deadline: eventDate,
+            domain: 'work', // Default
+            importance: 3,
+            urgency: 3
+        };
+
+        addTask(payload);
+        setNewEventText('');
+        setIsAddingEvent(false);
+    };
+
     return (
         <div className="flex flex-col h-full space-y-4">
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-3 shrink-0">
@@ -83,15 +112,101 @@ export const ScheduleFeature = () => {
                     </div>
                 </div>
 
-                <button
-                    onClick={handleAiOptimize}
-                    disabled={isOptimizing}
-                    aria-label="אופטימיזציה אוטומטית עם AI"
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white p-2 rounded-lg text-xs font-bold shadow-md active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 disabled:opacity-50"
-                >
-                    {isOptimizing ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                    תזמון אוטומטי עם Gemini
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={handleAiOptimize}
+                        disabled={isOptimizing}
+                        aria-label="אופטימיזציה אוטומטית עם AI"
+                        className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white p-2 rounded-lg text-xs font-bold shadow-md active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2 disabled:opacity-50"
+                    >
+                        {isOptimizing ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                        תזמון אוטומטי
+                    </button>
+                    <button
+                        onClick={() => setIsAddingEvent(!isAddingEvent)}
+                        aria-label="הוסף אירוע"
+                        className={cn(
+                            "px-3 py-2 rounded-lg text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-blue-400",
+                            isAddingEvent 
+                                ? "bg-blue-600 text-white" 
+                                : "bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
+                        )}
+                    >
+                        <Plus size={14} />
+                    </button>
+                </div>
+
+                {isAddingEvent && (
+                    <form onSubmit={handleAddEvent} className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2 animate-in slide-in-from-top-2">
+                        <div className="flex justify-between items-center">
+                            <h3 className="text-xs font-bold text-blue-900">הוסף אירוע</h3>
+                            <button
+                                type="button"
+                                onClick={() => setIsAddingEvent(false)}
+                                aria-label="סגור"
+                                className="text-blue-400 hover:text-blue-600"
+                            >
+                                <X size={14} />
+                            </button>
+                        </div>
+                        <input
+                            value={newEventText}
+                            onChange={e => setNewEventText(e.target.value)}
+                            placeholder="שם האירוע..."
+                            className="w-full text-sm px-3 py-2 rounded-lg border border-blue-200 focus:border-blue-400 outline-none bg-white"
+                            autoFocus
+                        />
+                        <div className="grid grid-cols-2 gap-2">
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-blue-700 block">תאריך</label>
+                                <input
+                                    type="date"
+                                    value={eventDate}
+                                    onChange={e => setEventDate(e.target.value)}
+                                    className="w-full text-xs px-2 py-1.5 rounded-lg border border-blue-200 focus:border-blue-400 outline-none bg-white"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-blue-700 block">סוג</label>
+                                <select
+                                    value={eventType}
+                                    onChange={e => setEventType(e.target.value)}
+                                    className="w-full text-xs px-2 py-1.5 rounded-lg border border-blue-200 focus:border-blue-400 outline-none bg-white"
+                                >
+                                    {Object.entries(EVENT_TYPES).map(([key, eventType]) => (
+                                        <option key={key} value={key}>{eventType.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-blue-700 block">התחלה</label>
+                                <input
+                                    type="time"
+                                    value={eventStartTime}
+                                    onChange={e => setEventStartTime(e.target.value)}
+                                    className="w-full text-xs px-2 py-1.5 rounded-lg border border-blue-200 focus:border-blue-400 outline-none bg-white font-mono"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-blue-700 block">סיום</label>
+                                <input
+                                    type="time"
+                                    value={eventEndTime}
+                                    onChange={e => setEventEndTime(e.target.value)}
+                                    className="w-full text-xs px-2 py-1.5 rounded-lg border border-blue-200 focus:border-blue-400 outline-none bg-white font-mono"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full bg-blue-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
+                        >
+                            הוסף אירוע
+                        </button>
+                    </form>
+                )}
             </div>
 
             <div className="flex-grow overflow-y-auto space-y-2 pr-1 relative pb-4">

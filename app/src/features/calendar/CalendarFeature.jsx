@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useTasks } from '../../contexts/TaskContext';
-import { DOMAINS, EVENT_TYPES } from '../../lib/constants';
-import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { DOMAINS, EVENT_TYPES, API_KEY } from '../../lib/constants';
+import { analyzeTaskWithAI } from '../../lib/ai';
+import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalendarIcon, Clock, Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { EditTaskDialog } from '../../components/ui/EditTaskDialog';
 
@@ -13,6 +14,14 @@ export const CalendarFeature = () => {
     const [selectedDate, setSelectedDate] = useState(null);
     const [newTaskText, setNewTaskText] = useState('');
     const [isEventToggle, setIsEventToggle] = useState(false); // New toggle for modal add
+    const [eventStartTime, setEventStartTime] = useState('09:00');
+    const [eventEndTime, setEventEndTime] = useState('10:00');
+    const [eventType, setEventType] = useState('other');
+    const [taskDomain, setTaskDomain] = useState('work');
+    const [taskImportance, setTaskImportance] = useState(3);
+    const [taskUrgency, setTaskUrgency] = useState(3);
+    const [aiAnalyzing, setAiAnalyzing] = useState(false);
+    const [aiReasoning, setAiReasoning] = useState('');
 
     // Task Edit Modal State
     const [editingTask, setEditingTask] = useState(null);
@@ -41,23 +50,55 @@ export const CalendarFeature = () => {
         daysInMonth.push(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
     }
 
+    const handleAiSuggest = async () => {
+        if (!newTaskText.trim()) {
+            setAiReasoning('אנא הזן טקסט משימה תחילה.');
+            return;
+        }
+
+        if (!API_KEY) {
+            setAiReasoning('מפתח API של GEMINI חסר.');
+            return;
+        }
+
+        setAiAnalyzing(true);
+        setAiReasoning('');
+        try {
+            const result = await analyzeTaskWithAI(newTaskText, DOMAINS[taskDomain].label, API_KEY);
+            setTaskImportance(result.importance || taskImportance);
+            setTaskUrgency(result.urgency || taskUrgency);
+            setAiReasoning(result.reasoning);
+        } catch (error) {
+            console.error(error);
+            setAiReasoning(error.message || 'ניתוח AI נכשל.');
+        } finally {
+            setAiAnalyzing(false);
+        }
+    };
+
     const handleAddTaskToDate = (e) => {
         e.preventDefault();
         if (!newTaskText.trim() || !selectedDate) return;
 
         const payload = {
             text: newTaskText,
-            domain: 'work', // Default
-            importance: 3,
-            urgency: 3,
+            domain: isEventToggle ? 'work' : taskDomain,
+            importance: isEventToggle ? 3 : taskImportance,
+            urgency: isEventToggle ? 3 : taskUrgency,
             deadline: selectedDate.toISOString().split('T')[0],
             type: isEventToggle ? 'event' : 'task',
-            eventType: isEventToggle ? 'other' : undefined,
-            time: isEventToggle ? '12:00' : undefined // Default time if event
+            eventType: isEventToggle ? eventType : undefined,
+            startTime: isEventToggle ? eventStartTime : undefined,
+            endTime: isEventToggle ? eventEndTime : undefined,
+            time: isEventToggle ? eventStartTime : undefined // Keep for backward compatibility
         };
 
         addTask(payload);
         setNewTaskText('');
+        setTaskDomain('work');
+        setTaskImportance(3);
+        setTaskUrgency(3);
+        setAiReasoning('');
     };
 
     const renderDayCell = (dateObj) => {
@@ -100,7 +141,9 @@ export const CalendarFeature = () => {
                         if (t.type === 'event') {
                             return (
                                 <div key={t.id} className="text-[9px] px-1 py-0.5 rounded bg-blue-100 text-blue-700 font-medium truncate flex items-center gap-1 border-l-2 border-blue-500">
-                                    <span className="opacity-75 text-[8px] font-mono leading-none">{t.time}</span>
+                                    <span className="opacity-75 text-[8px] font-mono leading-none">
+                                        {t.startTime && t.endTime ? `${t.startTime}-${t.endTime}` : t.time || ''}
+                                    </span>
                                     {t.text}
                                 </div>
                             )
@@ -219,7 +262,14 @@ export const CalendarFeature = () => {
 
                                             <div className="min-w-0">
                                                 <div className="text-sm font-bold text-slate-700 truncate">{t.text}</div>
-                                                {isEvent && <div className="text-[10px] text-slate-400 font-mono">{t.time || 'כל היום'} • {EVENT_TYPES[t.eventType]?.label || 'אירוע'}</div>}
+                                                {isEvent && (
+                                                    <div className="text-[10px] text-slate-400 font-mono">
+                                                        {t.startTime && t.endTime 
+                                                            ? `${t.startTime} - ${t.endTime}` 
+                                                            : t.time || 'כל היום'
+                                                        } • {EVENT_TYPES[t.eventType]?.label || 'אירוע'}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity">ערוך</span>
@@ -228,36 +278,152 @@ export const CalendarFeature = () => {
                             })}
                         </div>
 
-                        <form onSubmit={handleAddTaskToDate} className="p-4 bg-slate-50 border-t border-slate-100 flex gap-2">
-                            <div className="flex-grow flex gap-2">
+                        <form onSubmit={handleAddTaskToDate} className="p-4 bg-slate-50 border-t border-slate-100 space-y-3">
+                            {isEventToggle ? (
+                                <div className="grid grid-cols-3 gap-2">
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-slate-500 block">סוג אירוע</label>
+                                        <select
+                                            value={eventType}
+                                            onChange={e => setEventType(e.target.value)}
+                                            className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 focus:border-blue-400 outline-none bg-white"
+                                        >
+                                            {Object.entries(EVENT_TYPES).map(([key, eventType]) => (
+                                                <option key={key} value={key}>{eventType.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-slate-500 block">התחלה</label>
+                                        <input
+                                            type="time"
+                                            value={eventStartTime}
+                                            onChange={e => setEventStartTime(e.target.value)}
+                                            className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 focus:border-blue-400 outline-none bg-white font-mono"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-slate-500 block">סיום</label>
+                                        <input
+                                            type="time"
+                                            value={eventEndTime}
+                                            onChange={e => setEventEndTime(e.target.value)}
+                                            className="w-full text-xs px-2 py-1.5 rounded-lg border border-slate-200 focus:border-blue-400 outline-none bg-white font-mono"
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Domain Selection */}
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">קטגוריה</label>
+                                        <div className="grid grid-cols-4 gap-2">
+                                            {Object.entries(DOMAINS).map(([key, d]) => (
+                                                <button
+                                                    key={key}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setTaskDomain(key);
+                                                        setAiReasoning('');
+                                                    }}
+                                                    className={cn(
+                                                        "h-9 rounded-lg text-xs font-bold transition-all border shadow-sm",
+                                                        taskDomain === key
+                                                            ? `bg-white ${d.text} ${d.border} ring-2 ring-offset-1 ${d.ring}`
+                                                            : "bg-slate-50 text-slate-400 border-slate-100 hover:bg-slate-100"
+                                                    )}
+                                                >
+                                                    {d.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Importance and Urgency Sliders */}
+                                    <div className="p-3 bg-white rounded-xl border border-slate-100 space-y-3">
+                                        <div className="flex items-center justify-between gap-4">
+                                            <span className="text-xs font-bold text-slate-500 w-16 shrink-0">חשיבות</span>
+                                            <input
+                                                type="range"
+                                                min="1"
+                                                max="5"
+                                                step="0.5"
+                                                value={taskImportance}
+                                                onChange={e => setTaskImportance(parseFloat(e.target.value))}
+                                                className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-200 accent-blue-600"
+                                            />
+                                            <span className="text-sm font-black text-blue-600 w-6 text-center">{taskImportance}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between gap-4">
+                                            <span className="text-xs font-bold text-slate-500 w-16 shrink-0">דחיפות</span>
+                                            <input
+                                                type="range"
+                                                min="1"
+                                                max="5"
+                                                step="0.5"
+                                                value={taskUrgency}
+                                                onChange={e => setTaskUrgency(parseFloat(e.target.value))}
+                                                className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-200 accent-rose-500"
+                                            />
+                                            <span className="text-sm font-black text-rose-500 w-6 text-center">{taskUrgency}</span>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                            
+                            {/* Task Input with AI */}
+                            <div className="relative">
+                                <input
+                                    value={newTaskText}
+                                    onChange={e => {
+                                        setNewTaskText(e.target.value);
+                                        if (aiReasoning) setAiReasoning('');
+                                    }}
+                                    placeholder={isEventToggle ? "הוסף אירוע..." : "הוסף משימה..."}
+                                    aria-label={isEventToggle ? "טקסט אירוע" : "טקסט משימה"}
+                                    className="w-full text-sm px-3 py-2 pr-12 rounded-xl border border-slate-200 focus:border-blue-400 outline-none transition-all focus:ring-2 focus:ring-blue-100"
+                                    autoFocus
+                                />
+                                {!isEventToggle && (
+                                    <button
+                                        type="button"
+                                        onClick={handleAiSuggest}
+                                        disabled={aiAnalyzing}
+                                        aria-label="הצע ניתוח AI"
+                                        className="absolute left-2 top-1/2 -translate-y-1/2 text-violet-500 hover:bg-violet-50 p-1.5 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-violet-400 disabled:opacity-50"
+                                    >
+                                        {aiAnalyzing ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                                    </button>
+                                )}
+                            </div>
+
+                            {!isEventToggle && aiReasoning && (
+                                <div className="text-xs text-violet-600 bg-violet-50 p-2.5 rounded-xl border border-violet-100 animate-fadeIn leading-relaxed">
+                                    🤖 {aiReasoning}
+                                </div>
+                            )}
+
+                            <div className="flex gap-2">
                                 <button
                                     type="button"
                                     onClick={() => setIsEventToggle(!isEventToggle)}
                                     aria-label={isEventToggle ? "החלף למשימה" : "החלף לאירוע"}
                                     className={cn(
-                                        "p-2 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-blue-400",
+                                        "p-2 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 shrink-0",
                                         isEventToggle ? "bg-blue-100 border-blue-300 text-blue-600" : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50"
                                     )}
                                     title={isEventToggle ? "החלף למשימה" : "החלף לאירוע"}
                                 >
                                     {isEventToggle ? <Clock size={20} /> : <div className="w-5 h-5 rounded-full bg-slate-300 flex items-center justify-center"><div className="w-2 h-2 bg-white rounded-full"></div></div>}
                                 </button>
-                                <input
-                                    value={newTaskText}
-                                    onChange={e => setNewTaskText(e.target.value)}
-                                    placeholder={isEventToggle ? "הוסף אירוע..." : "הוסף משימה..."}
-                                    aria-label={isEventToggle ? "טקסט אירוע" : "טקסט משימה"}
-                                    className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:border-blue-400 outline-none transition-all focus:ring-2 focus:ring-blue-100"
-                                    autoFocus
-                                />
+                                <button 
+                                    type="submit" 
+                                    aria-label={isEventToggle ? "הוסף אירוע" : "הוסף משימה"}
+                                    className="flex-1 bg-slate-900 text-white py-2 rounded-xl hover:bg-black transition-colors shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+                                >
+                                    {isEventToggle ? "הוסף אירוע" : "הוסף משימה"}
+                                </button>
                             </div>
-                            <button 
-                                type="submit" 
-                                aria-label={isEventToggle ? "הוסף אירוע" : "הוסף משימה"}
-                                className="bg-slate-900 text-white p-2 rounded-xl hover:bg-black transition-colors shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
-                            >
-                                <Plus size={20} />
-                            </button>
                         </form>
                     </div>
                 </div>

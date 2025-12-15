@@ -109,7 +109,7 @@ export const FocusFeature = () => {
 
                             <h2 className="text-xl md:text-2xl font-black text-center mb-6 leading-tight max-w-xs">{activeTask.text}</h2>
 
-                            <CircularProgress progress={pomodoroProgress} colorClass={DOMAINS[activeTask.domain].text.replace('text-', 'stroke-')}>
+                            <CircularProgress progress={pomodoroProgress} colorClass={DOMAINS[activeTask.domain]?.stroke || 'stroke-slate-600'}>
                                 <div className="font-mono text-5xl font-black tracking-tighter tabular-nums drop-shadow-2xl">
                                     {formatTime(activeTask.elapsedTime || 0)}
                                 </div>

@@ -29,7 +29,6 @@ export const PlanningFeature = () => {
 
     // Quick Add State
     const [isAdding, setIsAdding] = useState(false);
-    const [addPos, setAddPos] = useState({ x: 0, y: 0 });
     const [tempTask, setTempTask] = useState({
         text: '',
         domain: 'work',
@@ -57,13 +56,11 @@ export const PlanningFeature = () => {
         if (e.target.closest('.no-map-click')) return;
 
         const rect = heatmapRef.current.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 100;
-        const y = ((rect.bottom - e.clientY) / rect.height) * 100;
+        const x = ((e.clientX - rect.left) * (100 / rect.width));
+        const y = ((rect.bottom - e.clientY) * (100 / rect.height));
 
-        const urgencyVal = Math.max(1, Math.min(5, (x / 100) * 5));
-        const importanceVal = Math.max(1, Math.min(5, (y / 100) * 5));
-
-        setAddPos({ x: (e.clientX - rect.left) / rect.width * 100, y: (e.clientY - rect.top) / rect.height * 100 });
+        const urgencyVal = Math.max(1, Math.min(5, (x * 0.01) * 5));
+        const importanceVal = Math.max(1, Math.min(5, (y * 0.01) * 5));
 
         setTempTask(prev => ({
             ...prev,
@@ -156,26 +153,25 @@ export const PlanningFeature = () => {
 
                     {/* Quick Add Form */}
                     {isAdding && (
-                        <div
-                            className={cn(
-                                "z-50 no-map-click bg-white shadow-2xl border border-slate-100 p-5 animate-in duration-200",
-                                "fixed bottom-0 left-0 right-0 w-full rounded-t-3xl slide-in-from-bottom-full pb-safe",
-                                "md:absolute md:w-[400px] md:rounded-2xl md:zoom-in-95 md:origin-center md:slide-in-from-bottom-2",
-                                "max-h-[90%] overflow-y-auto scrollbar-hide font-sans"
-                            )}
-                            style={{
-                                direction: 'rtl',
-                                top: typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches
-                                    ? (addPos.y > 50 ? undefined : `${addPos.y}%`)
-                                    : undefined,
-                                bottom: typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches
-                                    ? (addPos.y > 50 ? `${100 - addPos.y}%` : undefined)
-                                    : undefined,
-                                left: typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches
-                                    ? `${Math.min(addPos.x, 30)}%`
-                                    : undefined
+                        <div 
+                            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200"
+                            onClick={(e) => {
+                                if (e.target === e.currentTarget) {
+                                    setIsAdding(false);
+                                }
                             }}
                         >
+                            <div
+                                className={cn(
+                                    "z-50 no-map-click bg-white shadow-2xl border border-slate-100 p-5 animate-in duration-200",
+                                    "w-full max-w-md rounded-2xl zoom-in-95 origin-center slide-in-from-bottom-4",
+                                    "max-h-[90vh] overflow-y-auto scrollbar-hide font-sans relative"
+                                )}
+                                style={{
+                                    direction: 'rtl'
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                            >
                             <button 
                                 type="button" 
                                 onClick={() => setIsAdding(false)} 
@@ -217,7 +213,7 @@ export const PlanningFeature = () => {
                                 {/* Row 1: Time & Date */}
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <label className="text-[11px] font-bold text-slate-400 block text-right">זמן (דק')</label>
+                                        <label className="text-[11px] font-bold text-slate-400 block text-right">זמן (דק&apos;)</label>
                                         <div className="flex items-center justify-between bg-white rounded-xl border border-slate-200 p-1 pl-2 pr-2 shadow-sm h-[42px] hover:border-blue-300 transition-colors">
                                             <button
                                                 type="button"
@@ -227,7 +223,9 @@ export const PlanningFeature = () => {
                                                 <Minus size={16} />
                                             </button>
                                             <span className="text-lg font-bold text-slate-700 font-mono tracking-wider">
-                                                {Math.floor(tempTask.duration / 60).toString().padStart(2, '0')}:{(tempTask.duration % 60).toString().padStart(2, '0')}
+                                                {String(Math.floor(tempTask.duration / 60)).padStart(2, '0')}
+                                                :
+                                                {String(tempTask.duration % 60).padStart(2, '0')}
                                             </span>
                                             <button
                                                 type="button"
@@ -314,21 +312,22 @@ export const PlanningFeature = () => {
                                 </button>
                             </form>
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    {/* Tasks Only on Heatmap */}
-                    <div className="absolute inset-0 z-10 w-full h-full">
+                {/* Tasks Only on Heatmap */}
+                <div className="absolute inset-0 z-10 w-full h-full">
                         {activeTasks.map((task) => {
-                            const bottomPct = ((task.importance - 1) / 4) * 80 + 10;
-                            const leftPct = ((task.urgency - 1) / 4) * 80 + 10;
+                            const bottomPct = ((task.importance - 1) * 0.25) * 80 + 10;
+                            const leftPct = ((task.urgency - 1) * 0.25) * 80 + 10;
                             const isHovered = hoveredTask === task.id;
                             const isNearTop = task.importance > 4;
 
                             return (
                                 <div
                                     key={task.id}
-                                    className="no-map-click absolute transform -translate-x-1/2 translate-y-1/2 transition-all duration-300"
-                                    style={{ bottom: `${bottomPct}%`, left: `${leftPct}%` }}
+                                    className="no-map-click absolute transform -translate-x-[50%] translate-y-[50%] transition-all duration-300"
+                                    style={{ bottom: bottomPct + '%', left: leftPct + '%' }}
                                     onMouseEnter={() => setHoveredTask(task.id)}
                                     onMouseLeave={() => setHoveredTask(null)}
                                     onClick={(e) => {
@@ -348,11 +347,15 @@ export const PlanningFeature = () => {
 
                                     {isHovered && !editingTask && (
                                         <div className={cn(
-                                            "absolute left-1/2 -translate-x-1/2 w-48 bg-white/95 backdrop-blur border border-slate-200 text-slate-800 p-3 rounded-xl text-xs text-center shadow-2xl z-50 animate-in duration-200 pointer-events-none hidden md:block",
+                                            "absolute left-[50%] -translate-x-[50%] w-48 bg-white/95 backdrop-blur border border-slate-200 text-slate-800 p-3 rounded-xl text-xs text-center shadow-2xl z-50 animate-in duration-200 pointer-events-none hidden md:block",
                                             isNearTop ? "top-8 slide-in-from-top-2" : "bottom-8 slide-in-from-bottom-2"
                                         )}>
                                             <div className="font-bold mb-1 text-sm">{task.text}</div>
-                                            {task.deadline && <div className="text-slate-500 mb-2 bg-slate-50 inline-block px-1.5 py-0.5 rounded">📅 {new Date(task.deadline).toLocaleDateString('he-IL')}</div>}
+                                            {task.deadline && (
+                                                <div className="text-slate-500 mb-2 bg-slate-50 inline-block px-1.5 py-0.5 rounded">
+                                                    <CalendarIcon size={12} className="inline mr-1" /> {new Date(task.deadline).toLocaleDateString('he')}
+                                                </div>
+                                            )}
                                             <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-400 border-t border-slate-700 pt-1">
                                                 <span>⭐ {task.importance}</span>
                                                 <span>🔥 {task.urgency}</span>
@@ -369,7 +372,7 @@ export const PlanningFeature = () => {
             {/* Side Schedule Panel */}
             <div className={cn(
                 "w-64 shrink-0 transition-all duration-300 flex flex-col gap-4 overflow-hidden absolute md:relative z-20 h-full bg-slate-100 md:bg-transparent right-0 shadow-xl md:shadow-none p-4 md:p-0",
-                isScheduleOpen ? "translate-x-0 opacity-100" : "translate-x-full md:translate-x-0 md:w-0 md:opacity-0 md:overflow-hidden"
+                isScheduleOpen ? "translate-x-0 opacity-100" : "translate-x-[100%] md:translate-x-0 md:w-0 md:opacity-0 md:overflow-hidden"
             )}>
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200">
                     <h3 className="font-bold text-slate-700 flex items-center gap-2"><CalendarIcon size={16} /> לוח זמנים</h3>
@@ -397,11 +400,23 @@ export const PlanningFeature = () => {
                                     <div className={cn("absolute left-0 top-0 bottom-0 w-1", isEventToday ? "bg-blue-500" : "bg-slate-300")}></div>
                                     <div className="ml-2 flex flex-col items-center gap-1 text-slate-400 pt-0.5 min-w-[30px]">
                                         <EventIcon size={16} />
-                                        <span className="text-[10px] font-mono">{event.time}</span>
+                                        <div className="text-[10px] font-mono text-center leading-tight">
+                                            {event.startTime && event.endTime ? (
+                                                <>
+                                                    <div>{event.startTime}</div>
+                                                    <div className="text-[8px] opacity-75">-</div>
+                                                    <div>{event.endTime}</div>
+                                                </>
+                                            ) : (
+                                                <div>{event.time || ''}</div>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="flex-grow min-w-0">
                                         <div className="text-xs font-bold text-slate-700 truncate">{event.text}</div>
-                                        <div className="text-[10px] text-slate-400">{isEventToday ? 'היום' : new Date(event.deadline).toLocaleDateString('he-IL')} • {EVENT_TYPES[event.eventType]?.label}</div>
+                                        <div className="text-[10px] text-slate-400">
+                                            {isEventToday ? 'היום' : new Date(event.deadline).toLocaleDateString('he-IL')} {' • '} {EVENT_TYPES[event.eventType]?.label}
+                                        </div>
                                     </div>
                                 </div>
                             );

@@ -6,6 +6,7 @@ export const DOMAINS = {
         label: 'עבודה',
         color: 'bg-blue-500',
         text: 'text-blue-600',
+        stroke: 'stroke-blue-600',
         border: 'border-blue-200',
         bgLight: 'bg-blue-50',
         ring: 'ring-blue-500'
@@ -15,6 +16,7 @@ export const DOMAINS = {
         label: 'לימודים',
         color: 'bg-purple-500',
         text: 'text-purple-600',
+        stroke: 'stroke-purple-600',
         border: 'border-purple-200',
         bgLight: 'bg-purple-50',
         ring: 'ring-purple-500'
@@ -24,6 +26,7 @@ export const DOMAINS = {
         label: 'בית',
         color: 'bg-emerald-500',
         text: 'text-emerald-600',
+        stroke: 'stroke-emerald-600',
         border: 'border-emerald-200',
         bgLight: 'bg-emerald-50',
         ring: 'ring-emerald-500'
@@ -33,6 +36,7 @@ export const DOMAINS = {
         label: 'משפחה/חברים',
         color: 'bg-rose-500',
         text: 'text-rose-600',
+        stroke: 'stroke-rose-600',
         border: 'border-rose-200',
         bgLight: 'bg-rose-50',
         ring: 'ring-rose-500'
