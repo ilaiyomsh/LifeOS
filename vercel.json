@@ -1,0 +1,13 @@
+{
+  "buildCommand": "cd app && npm run build",
+  "outputDirectory": "app/dist",
+  "devCommand": "cd app && npm run dev",
+  "installCommand": "npm install && cd app && npm install",
+  "framework": "vite",
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs20.x"
+    }
+  }
+}
+

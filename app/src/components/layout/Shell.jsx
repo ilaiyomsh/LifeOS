@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { BarChart2, Calendar, Play, History, PieChart, Settings, Trophy, List } from 'lucide-react';
+import { BarChart2, Calendar, Play, History, PieChart, Settings, Trophy, List, Inbox } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTasks } from '../../contexts/TaskContext';
 import { useGame } from '../../contexts/GameContext';
 import { SettingsDialog } from '../ui/SettingsDialog';
 
 const TABS = [
+    { id: 'inbox', label: 'אינבוקס', icon: Inbox },
     { id: 'plan', label: 'תכנון', icon: BarChart2 },
     { id: 'calendar', label: 'לוח שנה', icon: Calendar },
     { id: 'schedule', label: 'לו״ז', icon: List }, // New tab

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTasks } from '../../contexts/TaskContext';
-import { DOMAINS, EVENT_TYPES, API_KEY } from '../../lib/constants';
+import { DOMAINS, EVENT_TYPES } from '../../lib/constants';
 import { analyzeTaskWithAI } from '../../lib/ai';
 import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalendarIcon, Clock, Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -56,15 +56,10 @@ export const CalendarFeature = () => {
             return;
         }
 
-        if (!API_KEY) {
-            setAiReasoning('מפתח API של GEMINI חסר.');
-            return;
-        }
-
         setAiAnalyzing(true);
         setAiReasoning('');
         try {
-            const result = await analyzeTaskWithAI(newTaskText, DOMAINS[taskDomain].label, API_KEY);
+            const result = await analyzeTaskWithAI(newTaskText, DOMAINS[taskDomain].label);
             setTaskImportance(result.importance || taskImportance);
             setTaskUrgency(result.urgency || taskUrgency);
             setAiReasoning(result.reasoning);
@@ -149,7 +144,10 @@ export const CalendarFeature = () => {
                             )
                         }
                         return (
-                            <div key={t.id} className={`text-[9px] px-1 py-0.5 rounded truncate border-l-2 ${DOMAINS[t.domain].bgLight} ${DOMAINS[t.domain].text} border-${DOMAINS[t.domain].color.split('-')[1]}-500 shadow-sm opacity-80 hover:opacity-100`}>
+                            <div key={t.id} className={cn(
+                                "text-[9px] px-1 py-0.5 rounded truncate border-l-2 shadow-sm opacity-80 hover:opacity-100",
+                                t.domain ? `${DOMAINS[t.domain].bgLight} ${DOMAINS[t.domain].text} border-${DOMAINS[t.domain].color.split('-')[1]}-500` : "bg-slate-100 text-slate-500 border-slate-300"
+                            )}>
                                 {t.text}
                             </div>
                         );
@@ -257,7 +255,7 @@ export const CalendarFeature = () => {
                                                     <Clock size={14} />
                                                 </div>
                                             ) : (
-                                                <div className={`w-3 h-3 rounded-full ${DOMAINS[t.domain].color} shrink-0`}></div>
+                                                <div className={cn("w-3 h-3 rounded-full shrink-0", t.domain ? DOMAINS[t.domain].color : "bg-slate-300")}></div>
                                             )}
 
                                             <div className="min-w-0">

@@ -51,7 +51,7 @@ export const FocusFeature = () => {
 
     const sortedTasks = useMemo(() => {
         return tasks
-            .filter(t => !t.completedAt)
+            .filter(t => !t.completedAt && t.domain)
             .sort((a, b) => {
                 // Sophisticated scoring: 
                 // 1. Due date proximity (highest weight)

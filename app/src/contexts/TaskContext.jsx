@@ -86,6 +86,19 @@ export const TaskProvider = ({ children }) => {
         }));
     };
 
+    // Helper functions for scheduling
+    const getHardEvents = () => {
+        return tasks.filter(t => t.type === 'event' && !t.completedAt);
+    };
+
+    const getTasksForScheduling = () => {
+        return tasks.filter(t => !t.completedAt && t.type !== 'event' && t.domain);
+    };
+
+    const getInboxTasks = () => {
+        return tasks.filter(t => !t.completedAt && !t.domain);
+    };
+
     const value = {
         tasks,
         activeTaskId,
@@ -94,7 +107,10 @@ export const TaskProvider = ({ children }) => {
         deleteTask,
         toggleTimer,
         completeTask,
-        snoozeTask
+        snoozeTask,
+        getHardEvents,
+        getTasksForScheduling,
+        getInboxTasks
     };
 
     return (

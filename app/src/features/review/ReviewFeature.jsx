@@ -8,8 +8,8 @@ export const ReviewFeature = () => {
 
     const data = useMemo(() => {
         // Count tasks per domain (could also do time spent)
-        const activeTasks = tasks.filter(t => !t.completedAt);
-        const completedTasks = tasks.filter(t => t.completedAt);
+        const activeTasks = tasks.filter(t => !t.completedAt && t.domain);
+        const completedTasks = tasks.filter(t => t.completedAt && t.domain);
 
         // Calculate Score: 1 point for active task, 1 point for completed task
         // Or better: Time spent per domain?

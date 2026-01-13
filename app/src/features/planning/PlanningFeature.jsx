@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useTasks } from '../../contexts/TaskContext';
-import { DOMAINS, EVENT_TYPES, API_KEY } from '../../lib/constants';
+import { DOMAINS, EVENT_TYPES } from '../../lib/constants';
 import { analyzeTaskWithAI } from '../../lib/ai';
 import { X, Calendar as CalendarIcon, Star, Flame, CheckSquare, Clock, ChevronRight, ChevronLeft, Sparkles, Loader2, Minus, Plus } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -80,15 +80,10 @@ export const PlanningFeature = () => {
             return;
         }
 
-        if (!API_KEY) {
-            setAiReasoning('מפתח API של GEMINI חסר.');
-            return;
-        }
-
         setAiAnalyzing(true);
         setAiReasoning('');
         try {
-            const result = await analyzeTaskWithAI(tempTask.text, DOMAINS[tempTask.domain].label, API_KEY);
+            const result = await analyzeTaskWithAI(tempTask.text, DOMAINS[tempTask.domain].label);
             setTempTask(prev => ({
                 ...prev,
                 importance: result.importance || prev.importance,
@@ -115,7 +110,7 @@ export const PlanningFeature = () => {
         setAiReasoning('');
     };
 
-    const activeTasks = tasks.filter(t => !t.completedAt && t.type !== 'event');
+    const activeTasks = tasks.filter(t => !t.completedAt && t.type !== 'event' && t.domain);
 
     const today = new Date().toISOString().split('T')[0];
     const upcomingEvents = tasks

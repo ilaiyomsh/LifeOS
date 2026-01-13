@@ -34,8 +34,10 @@ export const EditTaskDialog = ({ task, onClose }) => {
     };
 
     const handleDelete = () => {
-        deleteTask(task.id);
-        onClose();
+        if (window.confirm('האם אתה בטוח שברצונך למחוק משימה זו?')) {
+            deleteTask(task.id);
+            onClose();
+        }
     };
 
     return (

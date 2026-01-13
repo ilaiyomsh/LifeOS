@@ -44,6 +44,7 @@ export const DOMAINS = {
 };
 
 export const TABS = {
+    INBOX: 'inbox',
     PLAN: 'plan',
     CALENDAR: 'calendar',
     EXECUTE: 'execute',
@@ -58,5 +59,3 @@ export const EVENT_TYPES = {
     health: { label: 'בריאות', icon: Stethoscope },
     other: { label: 'כללי', icon: Calendar }
 };
-
-export const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
