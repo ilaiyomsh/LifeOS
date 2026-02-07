@@ -3,7 +3,7 @@
   "outputDirectory": "app/dist",
   "devCommand": "cd app && npm run dev",
   "installCommand": "npm install && cd app && npm install",
-  "framework": "vite",
+  "framework": null,
   "functions": {
     "api/**/*.js": {
       "runtime": "nodejs20.x"
