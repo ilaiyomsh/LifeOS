@@ -7,6 +7,8 @@ export function useEvents(from, to) {
   const mountedRef = useRef(false);
 
   const fetchEvents = useCallback(async () => {
+    if (!supabase) { setLoading(false); return; }
+
     let query = supabase.from('events').select('*');
 
     if (from) query = query.gte('start_at', from);
@@ -27,6 +29,7 @@ export function useEvents(from, to) {
   });
 
   const addEvent = useCallback(async (eventData) => {
+    if (!supabase) return;
     const { data, error } = await supabase
       .from('events')
       .insert([eventData])
@@ -38,6 +41,7 @@ export function useEvents(from, to) {
   }, []);
 
   const updateEvent = useCallback(async (id, updates) => {
+    if (!supabase) return;
     const { data, error } = await supabase
       .from('events')
       .update(updates)
@@ -50,6 +54,7 @@ export function useEvents(from, to) {
   }, []);
 
   const deleteEvent = useCallback(async (id) => {
+    if (!supabase) return;
     const { error } = await supabase.from('events').delete().eq('id', id);
     if (error) throw new Error(error.message);
   }, []);

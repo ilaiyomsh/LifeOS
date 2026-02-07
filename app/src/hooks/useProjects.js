@@ -8,6 +8,8 @@ export function useProjects(filters = {}) {
   const mountedRef = useRef(false);
 
   const fetchProjects = useCallback(async () => {
+    if (!supabase) { setLoading(false); return; }
+
     let query = supabase.from('projects').select('*');
 
     if (filters.area) query = query.eq('area', filters.area);
@@ -34,6 +36,7 @@ export function useProjects(filters = {}) {
   });
 
   useEffect(() => {
+    if (!supabase) return;
     const channel = supabase
       .channel('projects-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
@@ -47,6 +50,7 @@ export function useProjects(filters = {}) {
   }, [fetchProjects]);
 
   const addProject = useCallback(async (projectData) => {
+    if (!supabase) return;
     const { data, error: err } = await supabase
       .from('projects')
       .insert([projectData])
@@ -58,6 +62,7 @@ export function useProjects(filters = {}) {
   }, []);
 
   const updateProject = useCallback(async (id, updates) => {
+    if (!supabase) return;
     if (updates.is_active === false && !updates.completed_at) {
       updates.completed_at = new Date().toISOString();
     }

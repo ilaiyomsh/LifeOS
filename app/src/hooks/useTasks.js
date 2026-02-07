@@ -8,6 +8,8 @@ export function useTasks(filters = {}) {
   const mountedRef = useRef(false);
 
   const fetchTasks = useCallback(async () => {
+    if (!supabase) { setLoading(false); return; }
+
     let query = supabase.from('tasks').select('*');
 
     if (filters.status) {
@@ -38,8 +40,8 @@ export function useTasks(filters = {}) {
     }
   });
 
-  // Real-time subscription
   useEffect(() => {
+    if (!supabase) return;
     const channel = supabase
       .channel('tasks-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
@@ -53,6 +55,7 @@ export function useTasks(filters = {}) {
   }, [fetchTasks]);
 
   const addTask = useCallback(async (taskData) => {
+    if (!supabase) return;
     const { data, error: err } = await supabase
       .from('tasks')
       .insert([taskData])
@@ -64,6 +67,7 @@ export function useTasks(filters = {}) {
   }, []);
 
   const updateTask = useCallback(async (id, updates) => {
+    if (!supabase) return;
     if (updates.status === 'done' && !updates.completed_at) {
       updates.completed_at = new Date().toISOString();
     }
@@ -79,6 +83,7 @@ export function useTasks(filters = {}) {
   }, []);
 
   const deleteTask = useCallback(async (id) => {
+    if (!supabase) return;
     const { error: err } = await supabase
       .from('tasks')
       .update({ status: 'trashed' })
