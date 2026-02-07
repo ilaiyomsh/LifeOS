@@ -1,24 +1,31 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
+import * as localDb from '../lib/localDb';
 
 export function useEvents(from, to) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(false);
 
-  const fetchEvents = useCallback(async () => {
-    if (!supabase) { setLoading(false); return; }
+  const fetchEvents = useCallback(() => {
+    if (!supabase) {
+      setEvents(localDb.getEvents(from, to));
+      setLoading(false);
+      return;
+    }
 
-    let query = supabase.from('events').select('*');
+    (async () => {
+      let query = supabase.from('events').select('*');
 
-    if (from) query = query.gte('start_at', from);
-    if (to) query = query.lte('start_at', to);
+      if (from) query = query.gte('start_at', from);
+      if (to) query = query.lte('start_at', to);
 
-    query = query.order('start_at');
+      query = query.order('start_at');
 
-    const { data } = await query;
-    setEvents(data || []);
-    setLoading(false);
+      const { data } = await query;
+      setEvents(data || []);
+      setLoading(false);
+    })();
   }, [from, to]);
 
   useEffect(() => {
@@ -28,8 +35,17 @@ export function useEvents(from, to) {
     }
   });
 
+  useEffect(() => {
+    if (supabase) {
+      // No realtime channel for events was set up before, keep it simple
+      return;
+    }
+    return localDb.subscribe('events', fetchEvents);
+  }, [fetchEvents]);
+
   const addEvent = useCallback(async (eventData) => {
-    if (!supabase) return;
+    if (!supabase) return localDb.addEvent(eventData);
+
     const { data, error } = await supabase
       .from('events')
       .insert([eventData])
@@ -41,7 +57,8 @@ export function useEvents(from, to) {
   }, []);
 
   const updateEvent = useCallback(async (id, updates) => {
-    if (!supabase) return;
+    if (!supabase) return localDb.updateEvent(id, updates);
+
     const { data, error } = await supabase
       .from('events')
       .update(updates)
@@ -54,7 +71,8 @@ export function useEvents(from, to) {
   }, []);
 
   const deleteEvent = useCallback(async (id) => {
-    if (!supabase) return;
+    if (!supabase) return localDb.deleteEvent(id);
+
     const { error } = await supabase.from('events').delete().eq('id', id);
     if (error) throw new Error(error.message);
   }, []);

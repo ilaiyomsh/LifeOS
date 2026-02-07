@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
+import * as localDb from '../lib/localDb';
 
 export function useTasks(filters = {}) {
   const [tasks, setTasks] = useState([]);
@@ -7,31 +8,41 @@ export function useTasks(filters = {}) {
   const [error, setError] = useState(null);
   const mountedRef = useRef(false);
 
-  const fetchTasks = useCallback(async () => {
-    if (!supabase) { setLoading(false); return; }
+  const { status: fStatus, area: fArea, project_id: fProjectId, scheduled_date: fScheduledDate } = filters;
 
-    let query = supabase.from('tasks').select('*');
+  const fetchTasks = useCallback(() => {
+    const activeFilters = { status: fStatus, area: fArea, project_id: fProjectId, scheduled_date: fScheduledDate };
 
-    if (filters.status) {
-      const statuses = Array.isArray(filters.status) ? filters.status : [filters.status];
-      query = query.in('status', statuses);
+    if (!supabase) {
+      setTasks(localDb.getTasks(activeFilters));
+      setLoading(false);
+      return;
     }
-    if (filters.area) query = query.eq('area', filters.area);
-    if (filters.project_id) query = query.eq('project_id', filters.project_id);
-    if (filters.scheduled_date) query = query.eq('scheduled_date', filters.scheduled_date);
 
-    query = query.neq('status', 'trashed').order('position').order('created_at', { ascending: false });
+    (async () => {
+      let query = supabase.from('tasks').select('*');
 
-    const { data, error: err } = await query;
+      if (fStatus) {
+        const statuses = Array.isArray(fStatus) ? fStatus : [fStatus];
+        query = query.in('status', statuses);
+      }
+      if (fArea) query = query.eq('area', fArea);
+      if (fProjectId) query = query.eq('project_id', fProjectId);
+      if (fScheduledDate) query = query.eq('scheduled_date', fScheduledDate);
 
-    if (err) {
-      setError(err.message);
-      setTasks([]);
-    } else {
-      setTasks(data || []);
-    }
-    setLoading(false);
-  }, [filters.status, filters.area, filters.project_id, filters.scheduled_date]);
+      query = query.neq('status', 'trashed').order('position').order('created_at', { ascending: false });
+
+      const { data, error: err } = await query;
+
+      if (err) {
+        setError(err.message);
+        setTasks([]);
+      } else {
+        setTasks(data || []);
+      }
+      setLoading(false);
+    })();
+  }, [fStatus, fArea, fProjectId, fScheduledDate]);
 
   useEffect(() => {
     if (!mountedRef.current) {
@@ -40,22 +51,27 @@ export function useTasks(filters = {}) {
     }
   });
 
+  // Realtime: Supabase channel or localStorage event listener
   useEffect(() => {
-    if (!supabase) return;
-    const channel = supabase
-      .channel('tasks-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
-        fetchTasks();
-      })
-      .subscribe();
+    if (supabase) {
+      const channel = supabase
+        .channel('tasks-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+          fetchTasks();
+        })
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+    // localStorage reactivity
+    return localDb.subscribe('tasks', fetchTasks);
   }, [fetchTasks]);
 
   const addTask = useCallback(async (taskData) => {
-    if (!supabase) return;
+    if (!supabase) return localDb.addTask(taskData);
+
     const { data, error: err } = await supabase
       .from('tasks')
       .insert([taskData])
@@ -67,7 +83,8 @@ export function useTasks(filters = {}) {
   }, []);
 
   const updateTask = useCallback(async (id, updates) => {
-    if (!supabase) return;
+    if (!supabase) return localDb.updateTask(id, updates);
+
     if (updates.status === 'done' && !updates.completed_at) {
       updates.completed_at = new Date().toISOString();
     }
@@ -83,7 +100,8 @@ export function useTasks(filters = {}) {
   }, []);
 
   const deleteTask = useCallback(async (id) => {
-    if (!supabase) return;
+    if (!supabase) return localDb.deleteTask(id);
+
     const { error: err } = await supabase
       .from('tasks')
       .update({ status: 'trashed' })

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
+import * as localDb from '../lib/localDb';
 
 export function useProjects(filters = {}) {
   const [projects, setProjects] = useState([]);
@@ -7,26 +8,36 @@ export function useProjects(filters = {}) {
   const [error, setError] = useState(null);
   const mountedRef = useRef(false);
 
-  const fetchProjects = useCallback(async () => {
-    if (!supabase) { setLoading(false); return; }
+  const { area: fArea, is_active: fIsActive } = filters;
 
-    let query = supabase.from('projects').select('*');
+  const fetchProjects = useCallback(() => {
+    const activeFilters = { area: fArea, is_active: fIsActive };
 
-    if (filters.area) query = query.eq('area', filters.area);
-    if (filters.is_active !== undefined) query = query.eq('is_active', filters.is_active);
-
-    query = query.order('created_at', { ascending: false });
-
-    const { data, error: err } = await query;
-
-    if (err) {
-      setError(err.message);
-      setProjects([]);
-    } else {
-      setProjects(data || []);
+    if (!supabase) {
+      setProjects(localDb.getProjects(activeFilters));
+      setLoading(false);
+      return;
     }
-    setLoading(false);
-  }, [filters.area, filters.is_active]);
+
+    (async () => {
+      let query = supabase.from('projects').select('*');
+
+      if (fArea) query = query.eq('area', fArea);
+      if (fIsActive !== undefined) query = query.eq('is_active', fIsActive);
+
+      query = query.order('created_at', { ascending: false });
+
+      const { data, error: err } = await query;
+
+      if (err) {
+        setError(err.message);
+        setProjects([]);
+      } else {
+        setProjects(data || []);
+      }
+      setLoading(false);
+    })();
+  }, [fArea, fIsActive]);
 
   useEffect(() => {
     if (!mountedRef.current) {
@@ -36,21 +47,24 @@ export function useProjects(filters = {}) {
   });
 
   useEffect(() => {
-    if (!supabase) return;
-    const channel = supabase
-      .channel('projects-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
-        fetchProjects();
-      })
-      .subscribe();
+    if (supabase) {
+      const channel = supabase
+        .channel('projects-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
+          fetchProjects();
+        })
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+    return localDb.subscribe('projects', fetchProjects);
   }, [fetchProjects]);
 
   const addProject = useCallback(async (projectData) => {
-    if (!supabase) return;
+    if (!supabase) return localDb.addProject(projectData);
+
     const { data, error: err } = await supabase
       .from('projects')
       .insert([projectData])
@@ -62,7 +76,8 @@ export function useProjects(filters = {}) {
   }, []);
 
   const updateProject = useCallback(async (id, updates) => {
-    if (!supabase) return;
+    if (!supabase) return localDb.updateProject(id, updates);
+
     if (updates.is_active === false && !updates.completed_at) {
       updates.completed_at = new Date().toISOString();
     }
