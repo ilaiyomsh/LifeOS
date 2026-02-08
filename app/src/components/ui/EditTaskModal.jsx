@@ -91,7 +91,7 @@ export default function EditTaskModal({ task, projects = [], onSave, onClose }) 
                       : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
                   )}
                 >
-                  {a.icon} {a.label}
+                  {a.label}
                 </button>
               ))}
             </div>

@@ -192,7 +192,7 @@ export default function InboxView() {
                         : 'bg-white border-slate-200 text-slate-500'
                     )}
                   >
-                    {a.icon} {a.label}
+                    {a.label}
                   </button>
                 ))}
               </div>

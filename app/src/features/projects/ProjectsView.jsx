@@ -148,7 +148,7 @@ export default function ProjectsView() {
                     : 'bg-white border-slate-200 text-slate-500'
                 )}
               >
-                {a.icon} {a.label}
+                {a.label}
               </button>
             ))}
           </div>
