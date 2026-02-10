@@ -11,12 +11,12 @@ const TABS = [
 export default function Shell({ activeTab, onTabChange, children }) {
   return (
     <div className="flex flex-col h-dvh bg-slate-50">
-      <main className="flex-1 overflow-y-auto pb-20">
+      <main className="flex-1 overflow-y-auto pb-24">
         {children}
       </main>
 
       <nav
-        className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-50"
+        className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-50 pb-safe"
         role="tablist"
         aria-label="ניווט ראשי"
       >
@@ -32,10 +32,10 @@ export default function Shell({ activeTab, onTabChange, children }) {
                 aria-label={tab.label}
                 onClick={() => onTabChange(tab.id)}
                 className={cn(
-                  'flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-xl transition-colors min-w-[64px]',
+                  'flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-xl transition-colors min-w-[64px] active:scale-95',
                   isActive
                     ? 'text-slate-900'
-                    : 'text-slate-400 hover:text-slate-600'
+                    : 'text-slate-400 active:text-slate-600'
                 )}
               >
                 <TabIcon size={22} strokeWidth={isActive ? 2.5 : 1.5} />

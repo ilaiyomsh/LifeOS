@@ -201,28 +201,28 @@ export default function InboxView() {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => handleClarify('next_action')}
-                  className="flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 transition-colors"
+                  className="flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold active:bg-slate-800 transition-colors"
                 >
                   <Star size={16} />
                   פעולה הבאה
                 </button>
                 <button
                   onClick={() => handleClarify('waiting_for')}
-                  className="flex items-center justify-center gap-2 py-3 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-sm font-semibold hover:bg-amber-100 transition-colors"
+                  className="flex items-center justify-center gap-2 py-3 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-sm font-semibold active:bg-amber-100 transition-colors"
                 >
                   <Clock size={16} />
                   ממתין ל...
                 </button>
                 <button
                   onClick={() => handleClarify('someday')}
-                  className="flex items-center justify-center gap-2 py-3 bg-slate-50 text-slate-600 border border-slate-200 rounded-xl text-sm font-semibold hover:bg-slate-100 transition-colors"
+                  className="flex items-center justify-center gap-2 py-3 bg-slate-50 text-slate-600 border border-slate-200 rounded-xl text-sm font-semibold active:bg-slate-100 transition-colors"
                 >
                   <ArchiveX size={16} />
                   יום אחד
                 </button>
                 <button
                   onClick={() => handleClarify('trash')}
-                  className="flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-semibold hover:bg-red-100 transition-colors"
+                  className="flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-semibold active:bg-red-100 transition-colors"
                 >
                   <Trash2 size={16} />
                   מחיקה
@@ -243,18 +243,18 @@ export default function InboxView() {
                   <button
                     onClick={() => setClarifyIndex((i) => Math.max(0, i - 1))}
                     disabled={clarifyIndex === 0}
-                    className="p-2 text-slate-400 disabled:opacity-30"
+                    className="p-3 text-slate-400 disabled:opacity-30 active:bg-slate-100 rounded-xl"
                     aria-label="הקודם"
                   >
-                    <ArrowRight size={20} />
+                    <ArrowRight size={22} />
                   </button>
                   <button
                     onClick={() => setClarifyIndex((i) => Math.min(inboxTasks.length - 1, i + 1))}
                     disabled={clarifyIndex === inboxTasks.length - 1}
-                    className="p-2 text-slate-400 disabled:opacity-30"
+                    className="p-3 text-slate-400 disabled:opacity-30 active:bg-slate-100 rounded-xl"
                     aria-label="הבא"
                   >
-                    <ArrowLeft size={20} />
+                    <ArrowLeft size={22} />
                   </button>
                 </div>
               )}

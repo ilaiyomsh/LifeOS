@@ -221,13 +221,13 @@ export default function ReviewView() {
                     <span className="flex-1 text-sm text-slate-700">{task.title}</span>
                     <button
                       onClick={() => handleActivate(task.id)}
-                      className="text-xs px-2 py-1 bg-slate-900 text-white rounded-lg"
+                      className="text-xs px-3 py-2 bg-slate-900 text-white rounded-lg active:bg-slate-800"
                     >
                       הפעל
                     </button>
                     <button
                       onClick={() => handleTrash(task.id)}
-                      className="text-xs px-2 py-1 text-red-500 hover:bg-red-50 rounded-lg"
+                      className="text-xs px-3 py-2 text-red-500 active:bg-red-50 rounded-lg"
                     >
                       מחק
                     </button>
@@ -252,7 +252,7 @@ export default function ReviewView() {
                             <button
                               key={day}
                               onClick={() => handleSchedule(task.id, day)}
-                              className="shrink-0 px-2 py-1 text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors"
+                              className="shrink-0 px-3 py-2 text-xs bg-slate-100 active:bg-slate-200 text-slate-600 rounded-lg transition-colors"
                             >
                               {formatDateFull(day).split(',')[0] || new Date(day).toLocaleDateString('he-IL', { weekday: 'short', day: 'numeric' })}
                             </button>
@@ -286,7 +286,7 @@ export default function ReviewView() {
             )}
             <button
               onClick={markStepDone}
-              className="flex-1 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-semibold active:bg-slate-800 transition-colors flex items-center justify-center gap-2"
             >
               {currentStep === STEPS.length - 1 ? 'סיום סקירה' : 'הבא'}
               {currentStep < STEPS.length - 1 && <ChevronLeft size={16} />}

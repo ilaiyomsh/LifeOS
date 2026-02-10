@@ -53,7 +53,7 @@ export default function EditTaskModal({ task, projects = [], onSave, onClose }) 
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 pb-8 space-y-4" style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom))' }}>
           {/* Title */}
           <input
             type="text"
@@ -205,7 +205,7 @@ export default function EditTaskModal({ task, projects = [], onSave, onClose }) 
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-slate-900 text-white rounded-xl py-3 text-sm font-semibold hover:bg-slate-800 transition-colors"
+            className="w-full bg-slate-900 text-white rounded-xl py-3 text-sm font-semibold active:bg-slate-800 transition-colors"
           >
             שמור
           </button>
