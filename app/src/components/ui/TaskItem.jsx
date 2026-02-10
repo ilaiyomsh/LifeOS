@@ -97,7 +97,7 @@ export default function TaskItem({ task, onComplete, onDelete, onEdit, showArea 
           {showMenu && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-              <div className="absolute right-0 top-10 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50 min-w-[120px]">
+              <div className="absolute left-0 top-10 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50 min-w-[120px]">
                 {onEdit && (
                   <button
                     onClick={() => { onEdit(task); setShowMenu(false); }}
