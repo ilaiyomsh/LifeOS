@@ -14,7 +14,7 @@ export default function TaskItem({ task, onComplete, onDelete, onEdit, showArea 
     <div
       className={cn(
         'group flex items-start gap-3 px-4 py-3 bg-white rounded-xl border transition-colors',
-        overdue ? 'border-red-200 bg-red-50/50' : 'border-slate-100 hover:border-slate-200'
+        overdue ? 'border-red-200 bg-red-50/50' : 'border-slate-100 active:bg-slate-50'
       )}
     >
       {/* Checkbox */}
@@ -22,17 +22,17 @@ export default function TaskItem({ task, onComplete, onDelete, onEdit, showArea 
         <button
           onClick={() => onComplete(task.id)}
           className={cn(
-            'mt-0.5 shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors',
-            'border-slate-300 hover:border-emerald-500 hover:bg-emerald-50'
+            'mt-0.5 shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-colors',
+            'border-slate-300 active:border-emerald-500 active:bg-emerald-50'
           )}
           aria-label={`סמן "${task.title}" כהושלם`}
         >
-          <Check size={12} className="text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <Check size={12} className="text-emerald-500 opacity-0" />
         </button>
       )}
 
       {task.status === 'done' && (
-        <div className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+        <div className="mt-0.5 shrink-0 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center">
           <Check size={12} className="text-white" />
         </div>
       )}
@@ -88,20 +88,20 @@ export default function TaskItem({ task, onComplete, onDelete, onEdit, showArea 
         <div className="relative shrink-0" ref={menuRef}>
           <button
             onClick={() => setShowMenu(!showMenu)}
-            className="p-1 text-slate-300 hover:text-slate-500 rounded transition-colors"
+            className="p-2 -m-1 text-slate-300 active:text-slate-500 rounded transition-colors"
             aria-label="אפשרויות"
           >
-            <MoreHorizontal size={16} />
+            <MoreHorizontal size={18} />
           </button>
 
           {showMenu && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-              <div className="absolute left-0 top-8 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50 min-w-[120px]">
+              <div className="absolute right-0 top-10 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50 min-w-[120px]">
                 {onEdit && (
                   <button
                     onClick={() => { onEdit(task); setShowMenu(false); }}
-                    className="w-full text-right px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                    className="w-full text-right px-4 py-2.5 text-sm text-slate-700 active:bg-slate-50"
                   >
                     עריכה
                   </button>
@@ -109,7 +109,7 @@ export default function TaskItem({ task, onComplete, onDelete, onEdit, showArea 
                 {onDelete && (
                   <button
                     onClick={() => { onDelete(task.id); setShowMenu(false); }}
-                    className="w-full text-right px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    className="w-full text-right px-4 py-2.5 text-sm text-red-600 active:bg-red-50 flex items-center gap-2"
                   >
                     <Trash2 size={14} />
                     מחיקה

@@ -8,7 +8,6 @@ export const AREAS = {
     border: 'border-blue-200',
     ring: 'ring-blue-500',
     dot: 'bg-blue-500',
-    icon: '💼',
   },
   school: {
     id: 'school',
@@ -19,7 +18,6 @@ export const AREAS = {
     border: 'border-purple-200',
     ring: 'ring-purple-500',
     dot: 'bg-purple-500',
-    icon: '📚',
   },
   home: {
     id: 'home',
@@ -30,7 +28,6 @@ export const AREAS = {
     border: 'border-emerald-200',
     ring: 'ring-emerald-500',
     dot: 'bg-emerald-500',
-    icon: '🏠',
   },
 };
 

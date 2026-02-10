@@ -127,7 +127,7 @@ export default function ActionsView() {
                 : 'bg-white text-slate-500 border-slate-200'
             )}
           >
-            {a.icon} {a.label}
+            {a.label}
           </button>
         ))}
       </div>

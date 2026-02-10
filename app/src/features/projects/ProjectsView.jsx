@@ -116,7 +116,7 @@ export default function ProjectsView() {
         </div>
         <button
           onClick={() => setShowNewProject(!showNewProject)}
-          className="p-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors"
+          className="p-2 rounded-xl bg-slate-900 text-white active:bg-slate-800 transition-colors"
           aria-label="פרויקט חדש"
         >
           <Plus size={18} />
@@ -148,7 +148,7 @@ export default function ProjectsView() {
                     : 'bg-white border-slate-200 text-slate-500'
                 )}
               >
-                {a.icon} {a.label}
+                {a.label}
               </button>
             ))}
           </div>
@@ -202,7 +202,7 @@ export default function ProjectsView() {
                         {/* Project header */}
                         <button
                           onClick={() => toggleProject(project.id)}
-                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                          className="w-full flex items-center gap-3 px-4 py-3 active:bg-slate-50 transition-colors"
                         >
                           {isExpanded ? (
                             <ChevronDown size={16} className="text-slate-400 shrink-0" />
@@ -252,7 +252,7 @@ export default function ProjectsView() {
 
                             <button
                               onClick={() => handleCompleteProject(project.id)}
-                              className="w-full py-2 text-xs text-slate-400 hover:text-emerald-600 transition-colors flex items-center justify-center gap-1"
+                              className="w-full py-2 text-xs text-slate-400 active:text-emerald-600 transition-colors flex items-center justify-center gap-1"
                             >
                               <Check size={12} />
                               סיים פרויקט
