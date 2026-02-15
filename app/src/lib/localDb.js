@@ -71,6 +71,7 @@ export function addTask(taskData) {
     scheduled_date: taskData.scheduled_date || null,
     estimated_minutes: taskData.estimated_minutes || null,
     waiting_on: taskData.waiting_on || null,
+    is_focus: taskData.is_focus || false,
     created_at: new Date().toISOString(),
     completed_at: null,
     updated_at: new Date().toISOString(),

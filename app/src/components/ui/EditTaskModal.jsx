@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Star } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { AREA_LIST, PRIORITY_LABELS } from '../../lib/constants';
 
@@ -15,6 +15,7 @@ function buildFormFromTask(task) {
     estimated_minutes: task?.estimated_minutes || '',
     status: task?.status || 'inbox',
     waiting_on: task?.waiting_on || '',
+    is_focus: task?.is_focus || false,
   };
 }
 
@@ -120,6 +121,28 @@ export default function EditTaskModal({ task, projects = [], onSave, onClose }) 
               ))}
             </div>
           </div>
+
+          {/* Focus toggle */}
+          {form.status === 'next_action' && (
+            <div>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, is_focus: !form.is_focus })}
+                className={cn(
+                  'w-full flex items-center justify-between py-2.5 px-3 rounded-lg border transition-colors',
+                  form.is_focus
+                    ? 'bg-amber-50 border-amber-200 text-amber-700'
+                    : 'bg-white border-slate-200 text-slate-500'
+                )}
+              >
+                <span className="flex items-center gap-2 text-sm font-medium">
+                  <Star size={16} className={form.is_focus ? 'fill-amber-500' : ''} />
+                  משימת מיקוד
+                </span>
+                <span className="text-xs">{form.is_focus ? 'פעיל' : 'כבוי'}</span>
+              </button>
+            </div>
+          )}
 
           {/* Project */}
           {filteredProjects.length > 0 && (

@@ -53,3 +53,16 @@ export const PRIORITY_COLORS = {
   medium: 'text-amber-600',
   low: 'text-slate-400',
 };
+
+export const GTD = {
+  MAX_FOCUS_TASKS: 3,
+  MAX_DAILY_MINUTES: 300,
+  PRIORITY_INFLATION_THRESHOLD: 0.5,
+  TWO_MINUTE_THRESHOLD: 2,
+  STALE_THRESHOLDS: {
+    inbox: 1,
+    next_action: 3,
+    waiting_for: 14,
+    someday: 30,
+  },
+};
