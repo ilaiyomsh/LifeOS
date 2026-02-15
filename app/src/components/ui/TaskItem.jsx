@@ -1,5 +1,5 @@
 import { Check, Clock, AlertCircle, MoreHorizontal, Trash2, CalendarDays, Hourglass } from 'lucide-react';
-import { cn, formatDate, isOverdue } from '../../lib/utils';
+import { cn, formatDate, isOverdue, getTaskStaleness } from '../../lib/utils';
 import { AREAS, PRIORITY_COLORS } from '../../lib/constants';
 import { useState, useRef } from 'react';
 
@@ -9,6 +9,7 @@ export default function TaskItem({ task, onComplete, onDelete, onEdit, showArea 
 
   const area = task.area ? AREAS[task.area] : null;
   const overdue = isOverdue(task.due_date) && task.status !== 'done';
+  const staleness = getTaskStaleness(task);
 
   return (
     <div
@@ -80,6 +81,13 @@ export default function TaskItem({ task, onComplete, onDelete, onEdit, showArea 
               ממתין: {task.waiting_on}
             </span>
           )}
+
+          {staleness.isStale && (
+            <span className="text-[11px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+              <AlertCircle size={11} />
+              {staleness.label}
+            </span>
+          )}
         </div>
       </div>
 
@@ -97,7 +105,7 @@ export default function TaskItem({ task, onComplete, onDelete, onEdit, showArea 
           {showMenu && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-              <div className="absolute right-0 top-10 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50 min-w-[120px]">
+              <div className="absolute left-0 top-10 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50 min-w-[120px]">
                 {onEdit && (
                   <button
                     onClick={() => { onEdit(task); setShowMenu(false); }}

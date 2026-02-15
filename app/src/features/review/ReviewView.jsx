@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react';
-import { RefreshCw, Inbox, FolderKanban, Clock, ArchiveX, Calendar, ChevronLeft, Check, AlertTriangle } from 'lucide-react';
+import { RefreshCw, Inbox, FolderKanban, Clock, ArchiveX, Calendar, ChevronLeft, Check, AlertTriangle, BarChart3 } from 'lucide-react';
 import { useTasks } from '../../hooks/useTasks';
 import { useProjects } from '../../hooks/useProjects';
 import TaskItem from '../../components/ui/TaskItem';
 import EditTaskModal from '../../components/ui/EditTaskModal';
 import EmptyState from '../../components/ui/EmptyState';
 import { useToast } from '../../hooks/useToast';
-import { cn, formatDateFull } from '../../lib/utils';
+import { cn, formatDateFull, getTaskStaleness } from '../../lib/utils';
 import { AREAS } from '../../lib/constants';
 
 const STEPS = [
@@ -15,6 +15,7 @@ const STEPS = [
   { id: 'waiting', label: 'בדוק ממתינים', icon: Clock, description: 'עקוב אחרי דברים שממתינים' },
   { id: 'someday', label: 'סקור יום אחד/אולי', icon: ArchiveX, description: 'משהו להפעיל? משהו למחוק?' },
   { id: 'plan', label: 'תכנן את השבוע', icon: Calendar, description: 'הקצה משימות לימים הקרובים' },
+  { id: 'metrics', label: 'מדדים ורפלקציה', icon: BarChart3, description: 'סקור את השבוע ותכנן שיפורים' },
 ];
 
 export default function ReviewView() {
@@ -25,11 +26,43 @@ export default function ReviewView() {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState(new Set());
   const [editingTask, setEditingTask] = useState(null);
+  const [reflection, setReflection] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('lifeos_reflections') || '{}');
+      const today = new Date().toISOString().split('T')[0];
+      return saved.date === today ? saved : { start: '', stop: '', continue: '', date: today };
+    } catch {
+      return { start: '', stop: '', continue: '', date: new Date().toISOString().split('T')[0] };
+    }
+  });
 
   const inboxTasks = useMemo(() => allTasks.filter((t) => t.status === 'inbox'), [allTasks]);
   const waitingTasks = useMemo(() => allTasks.filter((t) => t.status === 'waiting_for'), [allTasks]);
   const somedayTasks = useMemo(() => allTasks.filter((t) => t.status === 'someday'), [allTasks]);
   const nextActions = useMemo(() => allTasks.filter((t) => t.status === 'next_action'), [allTasks]);
+
+  // Weekly metrics
+  const weeklyStats = useMemo(() => {
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const completedThisWeek = allTasks.filter(
+      (t) => t.status === 'done' && t.completed_at && new Date(t.completed_at) >= weekAgo
+    );
+    const totalMinutes = completedThisWeek.reduce((sum, t) => sum + (t.estimated_minutes || 0), 0);
+    const staleTasks = allTasks.filter((t) => getTaskStaleness(t).isStale);
+    return {
+      completed: completedThisWeek.length,
+      totalMinutes,
+      stale: staleTasks.length,
+      inboxSize: inboxTasks.length,
+    };
+  }, [allTasks, inboxTasks]);
+
+  const saveReflection = (field, value) => {
+    const updated = { ...reflection, [field]: value };
+    setReflection(updated);
+    localStorage.setItem('lifeos_reflections', JSON.stringify(updated));
+  };
 
   const projectsWithoutNextAction = useMemo(() => {
     return projects.filter((p) => {
@@ -111,7 +144,7 @@ export default function ReviewView() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-xl font-bold text-slate-900">סקירה שבועית</h1>
-        <p className="text-xs text-slate-400 mt-0.5">5 צעדים לסדר מושלם</p>
+        <p className="text-xs text-slate-400 mt-0.5">6 צעדים לסדר מושלם</p>
       </div>
 
       {/* Progress */}
@@ -270,6 +303,69 @@ export default function ReviewView() {
                     )}
                   </>
                 )}
+              </div>
+            )}
+
+            {/* Step 6: Metrics + Reflection */}
+            {step.id === 'metrics' && (
+              <div className="space-y-4">
+                {/* Weekly stats */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-white rounded-xl border border-slate-200 p-3 text-center">
+                    <p className="text-2xl font-bold text-emerald-600">{weeklyStats.completed}</p>
+                    <p className="text-[11px] text-slate-500">משימות הושלמו</p>
+                  </div>
+                  <div className="bg-white rounded-xl border border-slate-200 p-3 text-center">
+                    <p className="text-2xl font-bold text-blue-600">{weeklyStats.totalMinutes}</p>
+                    <p className="text-[11px] text-slate-500">דקות עבודה</p>
+                  </div>
+                  <div className="bg-white rounded-xl border border-slate-200 p-3 text-center">
+                    <p className={cn('text-2xl font-bold', weeklyStats.stale > 0 ? 'text-amber-600' : 'text-slate-400')}>{weeklyStats.stale}</p>
+                    <p className="text-[11px] text-slate-500">משימות ישנות</p>
+                  </div>
+                  <div className="bg-white rounded-xl border border-slate-200 p-3 text-center">
+                    <p className={cn('text-2xl font-bold', weeklyStats.inboxSize > 0 ? 'text-slate-800' : 'text-slate-400')}>{weeklyStats.inboxSize}</p>
+                    <p className="text-[11px] text-slate-500">בתיבת דואר</p>
+                  </div>
+                </div>
+
+                {/* Start / Stop / Continue */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-slate-700">רפלקציה שבועית</h3>
+                  <div>
+                    <label className="text-xs font-medium text-emerald-600 mb-1 block">להתחיל</label>
+                    <textarea
+                      value={reflection.start}
+                      onChange={(e) => saveReflection('start', e.target.value)}
+                      className="w-full text-sm bg-emerald-50 rounded-lg px-3 py-2 border border-emerald-200 focus:outline-none focus:ring-1 focus:ring-emerald-300 resize-none"
+                      placeholder="מה להתחיל לעשות?"
+                      rows={2}
+                      dir="rtl"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-red-600 mb-1 block">להפסיק</label>
+                    <textarea
+                      value={reflection.stop}
+                      onChange={(e) => saveReflection('stop', e.target.value)}
+                      className="w-full text-sm bg-red-50 rounded-lg px-3 py-2 border border-red-200 focus:outline-none focus:ring-1 focus:ring-red-300 resize-none"
+                      placeholder="מה לא עובד?"
+                      rows={2}
+                      dir="rtl"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-blue-600 mb-1 block">להמשיך</label>
+                    <textarea
+                      value={reflection.continue}
+                      onChange={(e) => saveReflection('continue', e.target.value)}
+                      className="w-full text-sm bg-blue-50 rounded-lg px-3 py-2 border border-blue-200 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none"
+                      placeholder="מה עובד טוב?"
+                      rows={2}
+                      dir="rtl"
+                    />
+                  </div>
+                </div>
               </div>
             )}
           </div>
