@@ -1,5 +1,7 @@
-import { Inbox, ListChecks, FolderKanban, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
+import { Inbox, ListChecks, FolderKanban, RefreshCw, Search } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import SearchModal from '../ui/SearchModal';
 
 const TABS = [
   { id: 'inbox', label: 'תיבת דואר', icon: Inbox },
@@ -8,9 +10,22 @@ const TABS = [
   { id: 'review', label: 'סקירה', icon: RefreshCw },
 ];
 
-export default function Shell({ activeTab, onTabChange, children }) {
+export default function Shell({ activeTab, onTabChange, onEditTask, children }) {
+  const [showSearch, setShowSearch] = useState(false);
+
   return (
     <div className="flex flex-col h-dvh bg-slate-50">
+      {/* Top search bar */}
+      <div className="sticky top-0 z-40 bg-slate-50 px-4 pt-2 pb-1" style={{ paddingTop: 'calc(0.5rem + env(safe-area-inset-top, 0px))' }}>
+        <button
+          onClick={() => setShowSearch(true)}
+          className="w-full flex items-center gap-2 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-400 active:bg-slate-50 transition-colors"
+        >
+          <Search size={16} />
+          <span>חיפוש משימות...</span>
+        </button>
+      </div>
+
       <main className="flex-1 overflow-y-auto pb-24">
         {children}
       </main>
@@ -50,6 +65,16 @@ export default function Shell({ activeTab, onTabChange, children }) {
           })}
         </div>
       </nav>
+
+      {showSearch && (
+        <SearchModal
+          onClose={() => setShowSearch(false)}
+          onSelectTask={(task) => {
+            onEditTask?.(task);
+            setShowSearch(false);
+          }}
+        />
+      )}
     </div>
   );
 }

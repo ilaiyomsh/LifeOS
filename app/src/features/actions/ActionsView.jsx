@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ListChecks, Clock, Star, AlertTriangle } from 'lucide-react';
+import { ListChecks, Clock, Star, AlertTriangle, CalendarDays, AlertCircle } from 'lucide-react';
 import { useTasks } from '../../hooks/useTasks';
 import { useProjects } from '../../hooks/useProjects';
 import TaskItem from '../../components/ui/TaskItem';
@@ -7,7 +7,7 @@ import TaskInput from '../../components/ui/TaskInput';
 import EditTaskModal from '../../components/ui/EditTaskModal';
 import EmptyState from '../../components/ui/EmptyState';
 import { useToast } from '../../hooks/useToast';
-import { cn, formatDateFull, getTodayStr, totalEstimatedMinutes, formatMinutesAsHours } from '../../lib/utils';
+import { cn, formatDateFull, getTodayStr, totalEstimatedMinutes, formatMinutesAsHours, isOverdue } from '../../lib/utils';
 import { AREAS, AREA_LIST, GTD } from '../../lib/constants';
 
 export default function ActionsView() {
@@ -17,15 +17,40 @@ export default function ActionsView() {
   const { projects } = useProjects({ is_active: true });
   const { addToast } = useToast();
   const [areaFilter, setAreaFilter] = useState(null);
+  const [smartFilter, setSmartFilter] = useState(null); // null | 'today' | 'upcoming' | 'overdue'
   const [editingTask, setEditingTask] = useState(null);
 
   const today = getTodayStr();
+
+  // Smart list counts
+  const smartCounts = useMemo(() => {
+    const nextActions = tasks.filter((t) => t.status === 'next_action');
+    const todayCount = nextActions.filter((t) => t.scheduled_date === today || t.due_date === today).length;
+    const weekFromNow = new Date();
+    weekFromNow.setDate(weekFromNow.getDate() + 7);
+    const weekStr = weekFromNow.toISOString().split('T')[0];
+    const upcomingCount = nextActions.filter((t) => t.due_date && t.due_date > today && t.due_date <= weekStr).length;
+    const overdueCount = nextActions.filter((t) => isOverdue(t.due_date)).length;
+    return { today: todayCount, upcoming: upcomingCount, overdue: overdueCount };
+  }, [tasks, today]);
 
   // Split tasks into groups
   const { focusTasks, otherActions, waitingFor } = useMemo(() => {
     let filtered = tasks;
     if (areaFilter) {
       filtered = filtered.filter((t) => t.area === areaFilter);
+    }
+
+    // Apply smart filter
+    if (smartFilter === 'today') {
+      filtered = filtered.filter((t) => t.scheduled_date === today || t.due_date === today);
+    } else if (smartFilter === 'upcoming') {
+      const weekFromNow = new Date();
+      weekFromNow.setDate(weekFromNow.getDate() + 7);
+      const weekStr = weekFromNow.toISOString().split('T')[0];
+      filtered = filtered.filter((t) => t.due_date && t.due_date > today && t.due_date <= weekStr);
+    } else if (smartFilter === 'overdue') {
+      filtered = filtered.filter((t) => isOverdue(t.due_date) && t.status !== 'done');
     }
 
     const focusTasks = filtered.filter(
@@ -38,7 +63,7 @@ export default function ActionsView() {
     const waitingFor = filtered.filter((t) => t.status === 'waiting_for');
 
     return { focusTasks, otherActions, waitingFor };
-  }, [tasks, areaFilter]);
+  }, [tasks, areaFilter, smartFilter, today]);
 
   // Capacity calculations
   const allNextActions = useMemo(() => tasks.filter((t) => t.status === 'next_action'), [tasks]);
@@ -151,6 +176,46 @@ export default function ActionsView() {
           <span className="text-xs text-amber-700">אינפלציית עדיפויות — לא הכל דחוף</span>
         </div>
       )}
+
+      {/* Smart lists */}
+      <div className="flex gap-2 mb-3 overflow-x-auto scrollbar-hide">
+        {smartCounts.today > 0 && (
+          <button
+            onClick={() => setSmartFilter(smartFilter === 'today' ? null : 'today')}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border shrink-0 transition-colors',
+              smartFilter === 'today' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-white text-slate-500 border-slate-200 active:bg-slate-50'
+            )}
+          >
+            <CalendarDays size={13} />
+            היום ({smartCounts.today})
+          </button>
+        )}
+        {smartCounts.upcoming > 0 && (
+          <button
+            onClick={() => setSmartFilter(smartFilter === 'upcoming' ? null : 'upcoming')}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border shrink-0 transition-colors',
+              smartFilter === 'upcoming' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-white text-slate-500 border-slate-200 active:bg-slate-50'
+            )}
+          >
+            <Clock size={13} />
+            בקרוב ({smartCounts.upcoming})
+          </button>
+        )}
+        {smartCounts.overdue > 0 && (
+          <button
+            onClick={() => setSmartFilter(smartFilter === 'overdue' ? null : 'overdue')}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border shrink-0 transition-colors',
+              smartFilter === 'overdue' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-white text-red-500 border-red-200 active:bg-red-50'
+            )}
+          >
+            <AlertCircle size={13} />
+            באיחור ({smartCounts.overdue})
+          </button>
+        )}
+      </div>
 
       {/* Area filter */}
       <div className="flex gap-1.5 mb-4 overflow-x-auto scrollbar-hide">

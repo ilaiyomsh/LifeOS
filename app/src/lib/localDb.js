@@ -4,15 +4,22 @@ function generateId() {
   return crypto.randomUUID();
 }
 
+// --- In-memory cache ---
+const cache = {};
+
 function getStore(table) {
+  if (cache[table]) return cache[table];
   try {
-    return JSON.parse(localStorage.getItem(`lifeos_${table}`) || '[]');
+    const data = JSON.parse(localStorage.getItem(`lifeos_${table}`) || '[]');
+    cache[table] = data;
+    return data;
   } catch {
     return [];
   }
 }
 
 function setStore(table, data) {
+  cache[table] = data;
   localStorage.setItem(`lifeos_${table}`, JSON.stringify(data));
 }
 
@@ -34,7 +41,7 @@ export function subscribe(table, fn) {
 // --- Tasks ---
 
 export function getTasks(filters = {}) {
-  let rows = getStore('tasks');
+  let rows = [...getStore('tasks')];
 
   // Never show trashed by default
   rows = rows.filter((r) => r.status !== 'trashed');
@@ -57,6 +64,17 @@ export function getTasks(filters = {}) {
   return rows;
 }
 
+export function searchTasks(query) {
+  if (!query || query.trim().length < 2) return [];
+  const q = query.trim().toLowerCase();
+  const rows = getStore('tasks').filter((r) => r.status !== 'trashed');
+  return rows.filter((r) =>
+    (r.title && r.title.toLowerCase().includes(q)) ||
+    (r.notes && r.notes.toLowerCase().includes(q)) ||
+    (r.waiting_on && r.waiting_on.toLowerCase().includes(q))
+  );
+}
+
 export function addTask(taskData) {
   const rows = getStore('tasks');
   const task = {
@@ -72,6 +90,8 @@ export function addTask(taskData) {
     estimated_minutes: taskData.estimated_minutes || null,
     waiting_on: taskData.waiting_on || null,
     is_focus: taskData.is_focus || false,
+    tags: taskData.tags || [],
+    recurring_rule: taskData.recurring_rule || null,
     created_at: new Date().toISOString(),
     completed_at: null,
     updated_at: new Date().toISOString(),
@@ -104,10 +124,51 @@ export function deleteTask(id) {
   emit('tasks');
 }
 
+// --- Subtasks ---
+
+export function getSubtasks(taskId) {
+  const rows = getStore('subtasks').filter((r) => r.task_id === taskId);
+  rows.sort((a, b) => (a.position || 0) - (b.position || 0));
+  return rows;
+}
+
+export function addSubtask(taskId, title) {
+  const rows = getStore('subtasks');
+  const existing = rows.filter((r) => r.task_id === taskId);
+  const subtask = {
+    id: generateId(),
+    task_id: taskId,
+    title: title || '',
+    is_done: false,
+    position: existing.length,
+    created_at: new Date().toISOString(),
+  };
+  rows.push(subtask);
+  setStore('subtasks', rows);
+  emit('subtasks');
+  return subtask;
+}
+
+export function updateSubtask(id, updates) {
+  const rows = getStore('subtasks');
+  const idx = rows.findIndex((r) => r.id === id);
+  if (idx === -1) throw new Error('Subtask not found');
+  rows[idx] = { ...rows[idx], ...updates };
+  setStore('subtasks', rows);
+  emit('subtasks');
+  return rows[idx];
+}
+
+export function deleteSubtask(id) {
+  const rows = getStore('subtasks');
+  setStore('subtasks', rows.filter((r) => r.id !== id));
+  emit('subtasks');
+}
+
 // --- Projects ---
 
 export function getProjects(filters = {}) {
-  let rows = getStore('projects');
+  let rows = [...getStore('projects')];
 
   if (filters.area) rows = rows.filter((r) => r.area === filters.area);
   if (filters.is_active !== undefined) rows = rows.filter((r) => r.is_active === filters.is_active);
@@ -150,7 +211,7 @@ export function updateProject(id, updates) {
 // --- Events ---
 
 export function getEvents(from, to) {
-  let rows = getStore('events');
+  let rows = [...getStore('events')];
 
   if (from) rows = rows.filter((r) => r.start_at >= from);
   if (to) rows = rows.filter((r) => r.start_at <= to);
