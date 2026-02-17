@@ -111,12 +111,12 @@ export default function ProjectsView() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">פרויקטים</h1>
-          <p className="text-xs text-slate-400 mt-0.5">מאורגנים לפי תחום</p>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-gray-100">פרויקטים</h1>
+          <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">מאורגנים לפי תחום</p>
         </div>
         <button
           onClick={() => setShowNewProject(!showNewProject)}
-          className="p-2 rounded-xl bg-slate-900 text-white active:bg-slate-800 transition-colors"
+          className="p-2 rounded-xl bg-slate-900 dark:bg-blue-600 text-white active:bg-slate-800 dark:active:bg-blue-700 transition-colors"
           aria-label="פרויקט חדש"
         >
           <Plus size={18} />
@@ -125,13 +125,13 @@ export default function ProjectsView() {
 
       {/* New project form */}
       {showNewProject && (
-        <form onSubmit={handleCreateProject} className="bg-white rounded-xl border border-slate-200 p-4 mb-4 space-y-3">
+        <form onSubmit={handleCreateProject} className="bg-white dark:bg-gray-800 rounded-xl border border-slate-200 dark:border-gray-700 p-4 mb-4 space-y-3">
           <input
             type="text"
             value={newProjectTitle}
             onChange={(e) => setNewProjectTitle(e.target.value)}
             placeholder="שם הפרויקט"
-            className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-slate-300"
+            className="w-full text-sm border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-slate-300 dark:focus:ring-gray-600 dark:text-gray-100"
             dir="rtl"
             autoFocus
           />
@@ -145,7 +145,7 @@ export default function ProjectsView() {
                   'flex-1 py-2 rounded-lg text-xs font-medium border transition-colors',
                   newProjectArea === a.id
                     ? `${a.lightBg} ${a.text} ${a.border}`
-                    : 'bg-white border-slate-200 text-slate-500'
+                    : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 text-slate-500 dark:text-gray-400'
                 )}
               >
                 {a.label}
@@ -156,14 +156,14 @@ export default function ProjectsView() {
             <button
               type="submit"
               disabled={!newProjectTitle.trim() || !newProjectArea}
-              className="flex-1 bg-slate-900 text-white rounded-lg py-2 text-sm font-semibold disabled:opacity-40"
+              className="flex-1 bg-slate-900 dark:bg-blue-600 text-white rounded-lg py-2 text-sm font-semibold disabled:opacity-40"
             >
               צור פרויקט
             </button>
             <button
               type="button"
               onClick={() => setShowNewProject(false)}
-              className="px-4 py-2 text-sm text-slate-500 hover:text-slate-700"
+              className="px-4 py-2 text-sm text-slate-500 dark:text-gray-400 hover:text-slate-700 dark:hover:text-gray-200"
             >
               ביטול
             </button>
@@ -185,10 +185,10 @@ export default function ProjectsView() {
 
             return (
               <section key={area.id}>
-                <h2 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-1.5">
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-gray-100 mb-3 flex items-center gap-1.5">
                   <span className={cn('w-2.5 h-2.5 rounded-full', area.dot)} />
                   {area.label}
-                  <span className="text-slate-400 font-normal">({areaProjects.length})</span>
+                  <span className="text-slate-400 dark:text-gray-500 font-normal">({areaProjects.length})</span>
                 </h2>
 
                 <div className="space-y-2">
@@ -198,18 +198,18 @@ export default function ProjectsView() {
                     const hasNextAction = projectTasks.some((t) => t.status === 'next_action');
 
                     return (
-                      <div key={project.id} className="bg-white rounded-xl border border-slate-100 overflow-hidden">
+                      <div key={project.id} className="bg-white dark:bg-gray-800 rounded-xl border border-slate-100 dark:border-gray-700 overflow-hidden">
                         {/* Project header */}
                         <button
                           onClick={() => toggleProject(project.id)}
-                          className="w-full flex items-center gap-3 px-4 py-3 active:bg-slate-50 transition-colors"
+                          className="w-full flex items-center gap-3 px-4 py-3 active:bg-slate-50 dark:active:bg-gray-750 transition-colors"
                         >
                           {isExpanded ? (
-                            <ChevronDown size={16} className="text-slate-400 shrink-0" />
+                            <ChevronDown size={16} className="text-slate-400 dark:text-gray-500 shrink-0" />
                           ) : (
-                            <ChevronLeft size={16} className="text-slate-400 shrink-0" />
+                            <ChevronLeft size={16} className="text-slate-400 dark:text-gray-500 shrink-0" />
                           )}
-                          <span className="flex-1 text-sm font-medium text-slate-800 text-right">
+                          <span className="flex-1 text-sm font-medium text-slate-800 dark:text-gray-200 text-right">
                             {project.title}
                           </span>
 
@@ -220,7 +220,7 @@ export default function ProjectsView() {
                                 <AlertTriangle size={14} />
                               </span>
                             )}
-                            <span className="text-[11px] text-slate-400">
+                            <span className="text-[11px] text-slate-400 dark:text-gray-500">
                               {projectTasks.length} משימות
                             </span>
                           </div>
@@ -228,9 +228,9 @@ export default function ProjectsView() {
 
                         {/* Expanded content */}
                         {isExpanded && (
-                          <div className="border-t border-slate-100 px-4 py-3 space-y-2">
+                          <div className="border-t border-slate-100 dark:border-gray-700 px-4 py-3 space-y-2">
                             {projectTasks.length === 0 ? (
-                              <p className="text-xs text-slate-400 text-center py-2">אין משימות בפרויקט</p>
+                              <p className="text-xs text-slate-400 dark:text-gray-500 text-center py-2">אין משימות בפרויקט</p>
                             ) : (
                               projectTasks.map((task) => (
                                 <TaskItem
@@ -252,7 +252,7 @@ export default function ProjectsView() {
 
                             <button
                               onClick={() => handleCompleteProject(project.id)}
-                              className="w-full py-2 text-xs text-slate-400 active:text-emerald-600 transition-colors flex items-center justify-center gap-1"
+                              className="w-full py-2 text-xs text-slate-400 dark:text-gray-500 active:text-emerald-600 dark:active:text-emerald-400 transition-colors flex items-center justify-center gap-1"
                             >
                               <Check size={12} />
                               סיים פרויקט

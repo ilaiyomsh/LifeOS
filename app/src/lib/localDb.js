@@ -255,3 +255,87 @@ export function deleteEvent(id) {
   setStore('events', updated);
   emit('events');
 }
+
+// --- Habits ---
+
+export function getHabits() {
+  return getStore('habits').filter((h) => h.is_active !== false);
+}
+
+export function addHabit(habitData) {
+  const rows = getStore('habits');
+  const habit = {
+    id: generateId(),
+    title: habitData.title || '',
+    area: habitData.area || null,
+    frequency: habitData.frequency || 'daily',
+    color: habitData.color || 'blue',
+    is_active: true,
+    created_at: new Date().toISOString(),
+  };
+  rows.push(habit);
+  setStore('habits', rows);
+  emit('habits');
+  return habit;
+}
+
+export function deleteHabit(id) {
+  const rows = getStore('habits');
+  setStore('habits', rows.filter((r) => r.id !== id));
+  // Also delete logs
+  const logs = getStore('habit_logs');
+  setStore('habit_logs', logs.filter((l) => l.habit_id !== id));
+  emit('habits');
+}
+
+// --- Habit Logs ---
+
+export function getHabitLogs(habitId) {
+  return getStore('habit_logs').filter((l) => l.habit_id === habitId);
+}
+
+export function addHabitLog(habitId, date) {
+  const rows = getStore('habit_logs');
+  const log = {
+    id: generateId(),
+    habit_id: habitId,
+    date,
+    completed_at: new Date().toISOString(),
+  };
+  rows.push(log);
+  setStore('habit_logs', rows);
+  emit('habit_logs');
+  return log;
+}
+
+export function deleteHabitLog(id) {
+  const rows = getStore('habit_logs');
+  setStore('habit_logs', rows.filter((r) => r.id !== id));
+  emit('habit_logs');
+}
+
+// --- Focus Sessions ---
+
+export function getFocusSessions(from, to) {
+  let rows = [...getStore('focus_sessions')];
+  if (from) rows = rows.filter((r) => r.started_at >= from);
+  if (to) rows = rows.filter((r) => r.started_at <= to);
+  rows.sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
+  return rows;
+}
+
+export function addFocusSession(taskId, durationMinutes) {
+  const rows = getStore('focus_sessions');
+  const session = {
+    id: generateId(),
+    task_id: taskId,
+    started_at: new Date().toISOString(),
+    ended_at: new Date().toISOString(),
+    duration_minutes: durationMinutes,
+    created_at: new Date().toISOString(),
+  };
+  rows.push(session);
+  setStore('focus_sessions', rows);
+  emit('focus_sessions');
+  return session;
+}

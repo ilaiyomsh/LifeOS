@@ -112,20 +112,20 @@ export default function InboxView() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">תיבת דואר</h1>
-          <p className="text-xs text-slate-400 mt-0.5">תעד → עבד → ארגן</p>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-gray-100">תיבת דואר</h1>
+          <p className="text-xs text-slate-400 dark:text-gray-500 mt-0.5">תעד → עבד → ארגן</p>
         </div>
         {inboxTasks.length > 0 && <Badge count={inboxTasks.length} />}
       </div>
 
       {/* Mode toggle */}
       {inboxTasks.length > 0 && (
-        <div className="flex bg-slate-100 rounded-lg p-1 mb-4">
+        <div className="flex bg-slate-100 dark:bg-gray-800 rounded-lg p-1 mb-4">
           <button
             onClick={() => setMode('capture')}
             className={cn(
               'flex-1 text-center py-2 rounded-md text-sm font-medium transition-colors',
-              mode === 'capture' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
+              mode === 'capture' ? 'bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-100 shadow-sm' : 'text-slate-500 dark:text-gray-400'
             )}
           >
             תיעוד
@@ -134,7 +134,7 @@ export default function InboxView() {
             onClick={() => { setMode('clarify'); setClarifyIndex(0); setClarifyStep(1); }}
             className={cn(
               'flex-1 text-center py-2 rounded-md text-sm font-medium transition-colors',
-              mode === 'clarify' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
+              mode === 'clarify' ? 'bg-white dark:bg-gray-700 text-slate-900 dark:text-gray-100 shadow-sm' : 'text-slate-500 dark:text-gray-400'
             )}
           >
             עיבוד ({inboxTasks.length})
@@ -181,17 +181,17 @@ export default function InboxView() {
           ) : currentTask ? (
             <div className="space-y-4">
               {/* Progress */}
-              <div className="text-center text-xs text-slate-400">
+              <div className="text-center text-xs text-slate-400 dark:text-gray-500">
                 {clarifyIndex + 1} מתוך {inboxTasks.length}
               </div>
 
               {/* Card */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                <p className="text-lg font-semibold text-slate-900 text-center mb-2">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 p-6 shadow-sm">
+                <p className="text-lg font-semibold text-slate-900 dark:text-gray-100 text-center mb-2">
                   {currentTask.title}
                 </p>
                 {currentTask.notes && (
-                  <p className="text-sm text-slate-500 text-center">{currentTask.notes}</p>
+                  <p className="text-sm text-slate-500 dark:text-gray-400 text-center">{currentTask.notes}</p>
                 )}
               </div>
 
@@ -205,7 +205,7 @@ export default function InboxView() {
                       'flex-1 py-2 rounded-lg text-xs font-medium border transition-colors',
                       currentTask.area === a.id
                         ? `${a.lightBg} ${a.text} ${a.border}`
-                        : 'bg-white border-slate-200 text-slate-500'
+                        : 'bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 text-slate-500 dark:text-gray-400'
                     )}
                   >
                     {a.label}
@@ -216,18 +216,18 @@ export default function InboxView() {
               {/* GTD Decision Tree */}
               {clarifyStep === 1 && (
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-slate-700 text-center">האם זה ניתן לפעולה?</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-gray-300 text-center">האם זה ניתן לפעולה?</p>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => setClarifyStep(2)}
-                      className="flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold active:bg-slate-800 transition-colors"
+                      className="flex items-center justify-center gap-2 py-3 bg-slate-900 dark:bg-blue-600 text-white rounded-xl text-sm font-semibold active:bg-slate-800 dark:active:bg-blue-700 transition-colors"
                     >
                       <Star size={16} />
                       כן, ניתן לפעולה
                     </button>
                     <button
                       onClick={() => setClarifyStep('not_actionable')}
-                      className="flex items-center justify-center gap-2 py-3 bg-slate-50 text-slate-600 border border-slate-200 rounded-xl text-sm font-semibold active:bg-slate-100 transition-colors"
+                      className="flex items-center justify-center gap-2 py-3 bg-slate-50 dark:bg-gray-800 text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-gray-700 rounded-xl text-sm font-semibold active:bg-slate-100 dark:active:bg-gray-700 transition-colors"
                     >
                       <HelpCircle size={16} />
                       לא
@@ -238,18 +238,18 @@ export default function InboxView() {
 
               {clarifyStep === 'not_actionable' && (
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-slate-700 text-center">מה לעשות עם זה?</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-gray-300 text-center">מה לעשות עם זה?</p>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => handleClarify('someday')}
-                      className="flex items-center justify-center gap-2 py-3 bg-slate-50 text-slate-600 border border-slate-200 rounded-xl text-sm font-semibold active:bg-slate-100 transition-colors"
+                      className="flex items-center justify-center gap-2 py-3 bg-slate-50 dark:bg-gray-800 text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-gray-700 rounded-xl text-sm font-semibold active:bg-slate-100 dark:active:bg-gray-700 transition-colors"
                     >
                       <ArchiveX size={16} />
                       יום אחד/אולי
                     </button>
                     <button
                       onClick={() => handleClarify('trash')}
-                      className="flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-semibold active:bg-red-100 transition-colors"
+                      className="flex items-center justify-center gap-2 py-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl text-sm font-semibold active:bg-red-100 dark:active:bg-red-900/30 transition-colors"
                     >
                       <Trash2 size={16} />
                       מחיקה
@@ -257,7 +257,7 @@ export default function InboxView() {
                   </div>
                   <button
                     onClick={() => setClarifyStep(1)}
-                    className="w-full py-2 text-xs text-slate-400 active:text-slate-600"
+                    className="w-full py-2 text-xs text-slate-400 dark:text-gray-500 active:text-slate-600 dark:active:text-gray-300"
                   >
                     חזרה
                   </button>
@@ -266,7 +266,7 @@ export default function InboxView() {
 
               {clarifyStep === 2 && (
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-slate-700 text-center">זה לוקח פחות מ-2 דקות?</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-gray-300 text-center">זה לוקח פחות מ-2 דקות?</p>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={handleQuickDo}
@@ -277,14 +277,14 @@ export default function InboxView() {
                     </button>
                     <button
                       onClick={() => setClarifyStep(3)}
-                      className="flex items-center justify-center gap-2 py-3 bg-slate-900 text-white rounded-xl text-sm font-semibold active:bg-slate-800 transition-colors"
+                      className="flex items-center justify-center gap-2 py-3 bg-slate-900 dark:bg-blue-600 text-white rounded-xl text-sm font-semibold active:bg-slate-800 dark:active:bg-blue-700 transition-colors"
                     >
                       לא — תכנן
                     </button>
                   </div>
                   <button
                     onClick={() => setClarifyStep(1)}
-                    className="w-full py-2 text-xs text-slate-400 active:text-slate-600"
+                    className="w-full py-2 text-xs text-slate-400 dark:text-gray-500 active:text-slate-600 dark:active:text-gray-300"
                   >
                     חזרה
                   </button>
@@ -293,25 +293,25 @@ export default function InboxView() {
 
               {clarifyStep === 3 && (
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-slate-700 text-center">מה הצעד הבא?</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-gray-300 text-center">מה הצעד הבא?</p>
                   <div className="grid grid-cols-3 gap-2">
                     <button
                       onClick={() => handleClarify('next_action')}
-                      className="flex flex-col items-center justify-center gap-1 py-3 bg-slate-900 text-white rounded-xl text-xs font-semibold active:bg-slate-800 transition-colors"
+                      className="flex flex-col items-center justify-center gap-1 py-3 bg-slate-900 dark:bg-blue-600 text-white rounded-xl text-xs font-semibold active:bg-slate-800 dark:active:bg-blue-700 transition-colors"
                     >
                       <Star size={16} />
                       פעולה הבאה
                     </button>
                     <button
                       onClick={() => handleClarify('waiting_for')}
-                      className="flex flex-col items-center justify-center gap-1 py-3 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-xs font-semibold active:bg-amber-100 transition-colors"
+                      className="flex flex-col items-center justify-center gap-1 py-3 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 rounded-xl text-xs font-semibold active:bg-amber-100 dark:active:bg-amber-900/30 transition-colors"
                     >
                       <Clock size={16} />
                       ממתין ל...
                     </button>
                     <button
                       onClick={() => handleClarify('someday')}
-                      className="flex flex-col items-center justify-center gap-1 py-3 bg-slate-50 text-slate-600 border border-slate-200 rounded-xl text-xs font-semibold active:bg-slate-100 transition-colors"
+                      className="flex flex-col items-center justify-center gap-1 py-3 bg-slate-50 dark:bg-gray-800 text-slate-600 dark:text-gray-300 border border-slate-200 dark:border-gray-700 rounded-xl text-xs font-semibold active:bg-slate-100 dark:active:bg-gray-700 transition-colors"
                     >
                       <ArchiveX size={16} />
                       יום אחד
@@ -319,7 +319,7 @@ export default function InboxView() {
                   </div>
                   <button
                     onClick={() => setClarifyStep(2)}
-                    className="w-full py-2 text-xs text-slate-400 active:text-slate-600"
+                    className="w-full py-2 text-xs text-slate-400 dark:text-gray-500 active:text-slate-600 dark:active:text-gray-300"
                   >
                     חזרה
                   </button>
@@ -329,7 +329,7 @@ export default function InboxView() {
               {/* Edit button */}
               <button
                 onClick={() => setEditingTask(currentTask)}
-                className="w-full py-2 text-sm text-slate-500 hover:text-slate-700 transition-colors"
+                className="w-full py-2 text-sm text-slate-500 dark:text-gray-400 hover:text-slate-700 dark:hover:text-gray-200 transition-colors"
               >
                 עריכה מפורטת...
               </button>
@@ -340,7 +340,7 @@ export default function InboxView() {
                   <button
                     onClick={() => { setClarifyIndex((i) => Math.max(0, i - 1)); setClarifyStep(1); }}
                     disabled={clarifyIndex === 0}
-                    className="p-3 text-slate-400 disabled:opacity-30 active:bg-slate-100 rounded-xl"
+                    className="p-3 text-slate-400 dark:text-gray-500 disabled:opacity-30 active:bg-slate-100 dark:active:bg-gray-800 rounded-xl"
                     aria-label="הקודם"
                   >
                     <ArrowRight size={22} />
@@ -348,7 +348,7 @@ export default function InboxView() {
                   <button
                     onClick={() => { setClarifyIndex((i) => Math.min(inboxTasks.length - 1, i + 1)); setClarifyStep(1); }}
                     disabled={clarifyIndex === inboxTasks.length - 1}
-                    className="p-3 text-slate-400 disabled:opacity-30 active:bg-slate-100 rounded-xl"
+                    className="p-3 text-slate-400 dark:text-gray-500 disabled:opacity-30 active:bg-slate-100 dark:active:bg-gray-800 rounded-xl"
                     aria-label="הבא"
                   >
                     <ArrowLeft size={22} />
