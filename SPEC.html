@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeOS V2.5 — אפיון מוצר</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Heebo', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.7; padding: 40px 20px; }
+  .page { max-width: 800px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 48px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  h1 { font-size: 32px; font-weight: 900; margin-bottom: 8px; color: #0f172a; }
+  h2 { font-size: 22px; font-weight: 700; margin-top: 40px; margin-bottom: 16px; color: #0f172a; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  h3 { font-size: 17px; font-weight: 700; margin-top: 24px; margin-bottom: 8px; color: #334155; }
+  h4 { font-size: 15px; font-weight: 600; margin-top: 16px; margin-bottom: 6px; color: #475569; }
+  p { margin-bottom: 12px; font-size: 15px; }
+  .subtitle { color: #64748b; font-size: 16px; font-weight: 400; margin-bottom: 32px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 14px; }
+  th { background: #f1f5f9; text-align: right; padding: 10px 14px; font-weight: 600; color: #475569; border: 1px solid #e2e8f0; }
+  td { padding: 10px 14px; border: 1px solid #e2e8f0; vertical-align: top; }
+  tr:nth-child(even) td { background: #fafbfc; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'Courier New', monospace; direction: ltr; unicode-bidi: embed; }
+  pre { background: #1e293b; color: #e2e8f0; padding: 16px 20px; border-radius: 10px; overflow-x: auto; direction: ltr; text-align: left; margin: 12px 0; font-size: 13px; line-height: 1.6; }
+  ul, ol { padding-right: 24px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; font-size: 15px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-violet { background: #ede9fe; color: #5b21b6; }
+  .tree { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; margin: 12px 0 20px; font-size: 14px; }
+  .tree pre { background: transparent; color: #334155; padding: 0; margin: 0; font-family: 'Heebo', sans-serif; white-space: pre-wrap; }
+  .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 20px; margin: 8px 0; }
+  .card-title { font-weight: 600; font-size: 14px; color: #334155; margin-bottom: 4px; }
+  .card-desc { font-size: 13px; color: #64748b; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+  .arch-box { background: #1e293b; color: #94a3b8; border-radius: 12px; padding: 20px 24px; margin: 16px 0; font-size: 13px; line-height: 1.8; direction: ltr; text-align: left; }
+  .arch-box span { color: #e2e8f0; }
+  .divider { height: 1px; background: #e2e8f0; margin: 32px 0; }
+  .footer { text-align: center; color: #94a3b8; font-size: 13px; margin-top: 40px; }
+  @media print {
+    body { padding: 0; background: #fff; }
+    .page { box-shadow: none; padding: 24px; }
+    h2 { page-break-before: auto; }
+    table, pre, .tree { page-break-inside: avoid; }
+  }
+  @media (max-width: 640px) {
+    .page { padding: 24px 16px; }
+    .grid-2 { grid-template-columns: 1fr; }
+    h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>LifeOS V2.5</h1>
+<p class="subtitle">אפיון מוצר — אפליקציית ניהול משימות מבוססת GTD</p>
+
+<h2>סקירה כללית</h2>
+<p><strong>LifeOS</strong> היא אפליקציית ניהול משימות מבוססת עקרונות GTD (Getting Things Done), עם ממשק עברי מלא (RTL). האפליקציה מיועדת לנייד תחילה (Mobile-First) ומאפשרת ניהול מלא של משימות, פרויקטים, וסקירה שבועית.</p>
+
+<table>
+  <tr><th>פרמטר</th><th>ערך</th></tr>
+  <tr><td>סטאק</td><td>React 19 + Vite 7 + Tailwind CSS 3</td></tr>
+  <tr><td>אחסון</td><td>localStorage (ראשי) / Supabase (אופציונלי)</td></tr>
+  <tr><td>Deployment</td><td>Vercel</td></tr>
+  <tr><td>שפת ממשק</td><td>עברית (RTL)</td></tr>
+  <tr><td>מצב</td><td>PWA-Ready (meta tags, safe areas)</td></tr>
+  <tr><td>דומיין</td><td>life-os-iota-seven.vercel.app</td></tr>
+</table>
+
+<h2>ארכיטקטורה</h2>
+<div class="arch-box">
+<span>App.jsx</span><br>
+├── ToastProvider (הודעות)<br>
+├── <span>Shell</span> (layout)<br>
+│&nbsp;&nbsp;&nbsp;├── Search Bar (חיפוש גלובלי)<br>
+│&nbsp;&nbsp;&nbsp;├── Main Content Area<br>
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span>InboxView</span> (תיבת דואר)<br>
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span>ActionsView</span> (פעולות)<br>
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span>ProjectsView</span> (פרויקטים)<br>
+│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span>ReviewView</span> (סקירה שבועית)<br>
+│&nbsp;&nbsp;&nbsp;└── Bottom Navigation (4 טאבים)<br>
+└── <span>EditTaskModal</span> (עריכת משימה — גלובלי)
+</div>
+<p><strong>Dual-mode storage:</strong> אם Supabase מוגדר — Postgres + Realtime. אחרת localStorage עם in-memory cache.</p>
+
+<h2>מודל נתונים</h2>
+
+<h3>משימה (Task)</h3>
+<table>
+  <tr><th>שדה</th><th>סוג</th><th>תיאור</th></tr>
+  <tr><td><code>title</code></td><td>string</td><td>שם המשימה (חובה)</td></tr>
+  <tr><td><code>notes</code></td><td>string</td><td>הערות חופשיות</td></tr>
+  <tr><td><code>status</code></td><td>enum</td><td>inbox / next_action / waiting_for / someday / done / trashed</td></tr>
+  <tr><td><code>priority</code></td><td>enum</td><td>high / medium / low</td></tr>
+  <tr><td><code>area</code></td><td>enum</td><td>work (עבודה) / school (לימודים) / home (בית)</td></tr>
+  <tr><td><code>project_id</code></td><td>UUID</td><td>שיוך לפרויקט</td></tr>
+  <tr><td><code>due_date</code></td><td>date</td><td>תאריך יעד</td></tr>
+  <tr><td><code>scheduled_date</code></td><td>date</td><td>מתוכנן ליום</td></tr>
+  <tr><td><code>estimated_minutes</code></td><td>number</td><td>זמן משוער בדקות</td></tr>
+  <tr><td><code>waiting_on</code></td><td>string</td><td>ממתין למי/למה</td></tr>
+  <tr><td><code>is_focus</code></td><td>boolean</td><td>משימת מיקוד (מקס 3)</td></tr>
+  <tr><td><code>tags</code></td><td>string[]</td><td>תגיות חופשיות</td></tr>
+  <tr><td><code>recurring_rule</code></td><td>object</td><td><code>{ frequency: daily/weekly/monthly }</code></td></tr>
+</table>
+
+<h3>משימת משנה (Subtask)</h3>
+<p><code>task_id</code> + <code>title</code> + <code>is_done</code> + <code>position</code></p>
+
+<h3>פרויקט (Project)</h3>
+<p><code>title</code> + <code>area</code> (חובה) + <code>is_active</code> + <code>description</code></p>
+
+<div class="divider"></div>
+
+<h2>4 מסכים</h2>
+
+<h3>1. תיבת דואר (Inbox)</h3>
+<p>שני מצבים:</p>
+<p><strong>תיעוד (Capture)</strong> — הוספה מהירה + רשימת כל הפריטים</p>
+<p><strong>עיבוד (Clarify)</strong> — עץ החלטות GTD מונחה:</p>
+
+<div class="tree"><pre>"האם זה ניתן לפעולה?"
+├── כן → "לוקח פחות מ-2 דקות?"
+│         ├── כן → עשה עכשיו! (סימון אוטומטי)
+│         └── לא → "מה הצעד הבא?"
+│                   ├── פעולה הבאה
+│                   ├── ממתין ל...
+│                   └── יום אחד
+└── לא → יום אחד/אולי | מחיקה</pre></div>
+
+<h3>2. פעולות (Actions)</h3>
+<ul>
+  <li><strong>בר קיבולת יומית</strong> — ירוק/כתום/אדום (מקס 5 שעות)</li>
+  <li><strong>התראות</strong> — עומס יתר, אינפלציית עדיפויות</li>
+  <li><strong>רשימות חכמות</strong> — <span class="badge badge-blue">היום</span> <span class="badge badge-amber">בקרוב</span> <span class="badge badge-red">באיחור</span></li>
+  <li><strong>סינון לפי תחום</strong> — עבודה / לימודים / בית</li>
+  <li><strong>חלוקה</strong>: מיקוד (מקס 3) → אם יש זמן → ממתין ל...</li>
+</ul>
+
+<h3>3. פרויקטים (Projects)</h3>
+<ul>
+  <li>פרויקטים מקובצים לפי תחום</li>
+  <li>אזהרה אם חסרה פעולה הבאה</li>
+  <li>מתקפלים עם משימות בפנים</li>
+  <li>הוספת משימה מהירה בתוך פרויקט</li>
+</ul>
+
+<h3>4. סקירה שבועית (Review)</h3>
+<p>6 צעדים מונחים:</p>
+<table>
+  <tr><th>#</th><th>שלב</th></tr>
+  <tr><td>1</td><td>עבד את תיבת הדואר</td></tr>
+  <tr><td>2</td><td>סקור פרויקטים</td></tr>
+  <tr><td>3</td><td>בדוק ממתינים</td></tr>
+  <tr><td>4</td><td>סקור יום אחד/אולי</td></tr>
+  <tr><td>5</td><td>תכנן את השבוע (7 ימים)</td></tr>
+  <tr><td>6</td><td>מדדים (הושלמו, דקות, ישנות, inbox) + רפלקציה (להתחיל / להפסיק / להמשיך)</td></tr>
+</table>
+
+<div class="divider"></div>
+
+<h2>יכולות חוצות-מסכים</h2>
+
+<table>
+  <tr><th>יכולת</th><th>פירוט</th></tr>
+  <tr><td>חיפוש גלובלי</td><td>שדה קבוע בראש, הדגשת טקסט תואם, תוצאות מקובצות לפי סטטוס</td></tr>
+  <tr><td>משימות משנה</td><td>צ׳קליסט מתקפל בתוך כל משימה (2/5 ✓)</td></tr>
+  <tr><td>משימות חוזרות</td><td>יומי/שבועי/חודשי — יוצר מופע חדש אוטומטית בהשלמה</td></tr>
+  <tr><td>תגיות</td><td>תוויות חופשיות <span class="badge badge-violet">chips סגולים</span></td></tr>
+  <tr><td>זיהוי משימות ישנות</td><td>תיבה &gt;1 יום, פעולה &gt;3, ממתין &gt;14, יום אחד &gt;30</td></tr>
+  <tr><td>עורך משימה מלא</td><td>כותרת, הערות, subtasks, תחום, עדיפות, מיקוד, תגיות, חזרה, פרויקט, סטטוס, תאריכים, זמן</td></tr>
+</table>
+
+<h2>לוגיקה עסקית</h2>
+<ul>
+  <li><strong>מיקוד:</strong> מקסימום 3 משימות, הקיבולת מחושבת רק מהן</li>
+  <li><strong>כלל 2 דקות:</strong> בעיבוד — אם פחות מ-2 דקות, מסומנת ישירות כפעולה</li>
+  <li><strong>אינפלציית עדיפויות:</strong> אזהרה כש-&gt;50% מהמשימות בעדיפות גבוהה</li>
+  <li><strong>Recurring:</strong> השלמה → יצירה אוטומטית של המופע הבא עם תאריך מחושב</li>
+  <li><strong>Soft delete:</strong> מחיקה = <code>status: trashed</code>, לא מחיקה פיזית</li>
+</ul>
+
+<h2>טכני</h2>
+<table>
+  <tr><th>תחום</th><th>פירוט</th></tr>
+  <tr><td>ביצועים</td><td>in-memory cache, React.memo, useEffect deps תקינים</td></tr>
+  <tr><td>Mobile</td><td>Safe area insets, touch targets, active: states, no-zoom, PWA meta</td></tr>
+  <tr><td>RTL</td><td>כל הממשק בעברית, <code>dir="rtl"</code> גלובלי</td></tr>
+  <tr><td>Accessibility</td><td>aria roles, labels, semantic HTML</td></tr>
+  <tr><td>DB</td><td>Supabase אופציונלי — אם מוגדר, Postgres + Realtime. אחרת 100% offline</td></tr>
+</table>
+
+<h2>תלויות</h2>
+<table>
+  <tr><th>חבילה</th><th>גרסה</th><th>שימוש</th></tr>
+  <tr><td>React</td><td>19.2</td><td>UI Framework</td></tr>
+  <tr><td>Vite</td><td>7.2</td><td>Build tool</td></tr>
+  <tr><td>Tailwind CSS</td><td>3.4</td><td>CSS framework</td></tr>
+  <tr><td>lucide-react</td><td>0.561</td><td>אייקונים</td></tr>
+  <tr><td>@supabase/supabase-js</td><td>2.95</td><td>DB (אופציונלי)</td></tr>
+</table>
+
+<div class="footer">
+  LifeOS V2.5 — אפיון מוצר — פברואר 2026
+</div>
+
+</div>
+</body>
+</html>
