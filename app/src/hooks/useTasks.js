@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import * as localDb from '../lib/localDb';
 
@@ -6,7 +6,6 @@ export function useTasks(filters = {}) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const mountedRef = useRef(false);
 
   const { status: fStatus, area: fArea, project_id: fProjectId, scheduled_date: fScheduledDate } = filters;
 
@@ -45,11 +44,8 @@ export function useTasks(filters = {}) {
   }, [fStatus, fArea, fProjectId, fScheduledDate]);
 
   useEffect(() => {
-    if (!mountedRef.current) {
-      mountedRef.current = true;
-      fetchTasks(); // eslint-disable-line react-hooks/set-state-in-effect
-    }
-  });
+    fetchTasks();
+  }, [fetchTasks]);
 
   // Realtime: Supabase channel or localStorage event listener
   useEffect(() => {
@@ -111,8 +107,30 @@ export function useTasks(filters = {}) {
   }, []);
 
   const completeTask = useCallback(async (id) => {
+    // Check if it's a recurring task — auto-create next instance
+    const task = tasks.find((t) => t.id === id);
+    if (task?.recurring_rule) {
+      const rule = task.recurring_rule;
+      const nextDate = new Date();
+      if (rule.frequency === 'daily') nextDate.setDate(nextDate.getDate() + (rule.interval || 1));
+      else if (rule.frequency === 'weekly') nextDate.setDate(nextDate.getDate() + 7 * (rule.interval || 1));
+      else if (rule.frequency === 'monthly') nextDate.setMonth(nextDate.getMonth() + (rule.interval || 1));
+
+      await addTask({
+        title: task.title,
+        notes: task.notes,
+        status: 'next_action',
+        priority: task.priority,
+        area: task.area,
+        project_id: task.project_id,
+        estimated_minutes: task.estimated_minutes,
+        tags: task.tags,
+        recurring_rule: task.recurring_rule,
+        scheduled_date: nextDate.toISOString().split('T')[0],
+      });
+    }
     return updateTask(id, { status: 'done', completed_at: new Date().toISOString() });
-  }, [updateTask]);
+  }, [updateTask, addTask, tasks]);
 
   return { tasks, loading, error, addTask, updateTask, deleteTask, completeTask, refresh: fetchTasks };
 }

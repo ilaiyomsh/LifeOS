@@ -31,9 +31,9 @@ export default function TaskInput({ onAdd, placeholder = 'מה צריך לעשו
           onChange={(e) => setText(e.target.value)}
           placeholder={placeholder}
           className={cn(
-            'w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm',
-            'placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-300',
-            'transition-shadow'
+            'w-full bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm',
+            'placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-slate-900/10 dark:focus:ring-blue-500/20 focus:border-slate-300 dark:focus:border-gray-600',
+            'transition-shadow dark:text-gray-100'
           )}
           dir="rtl"
           disabled={submitting}
@@ -43,10 +43,10 @@ export default function TaskInput({ onAdd, placeholder = 'מה צריך לעשו
         type="submit"
         disabled={!text.trim() || submitting}
         className={cn(
-          'shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-colors',
+          'shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-colors touch-target',
           text.trim()
-            ? 'bg-slate-900 text-white hover:bg-slate-800'
-            : 'bg-slate-100 text-slate-300'
+            ? 'bg-slate-900 dark:bg-blue-600 text-white active:opacity-80'
+            : 'bg-slate-100 dark:bg-gray-800 text-slate-300 dark:text-gray-600'
         )}
         aria-label="הוסף משימה"
       >
