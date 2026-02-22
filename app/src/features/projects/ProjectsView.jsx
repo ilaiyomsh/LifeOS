@@ -97,6 +97,16 @@ export default function ProjectsView() {
     }
   };
 
+  const handleConvertToProject = async (task) => {
+    if (!task.area) { addToast('יש לבחור תחום לפני הפיכה לפרויקט'); return; }
+    try {
+      const project = await addProject({ title: task.title, area: task.area });
+      await updateTask(task.id, { project_id: project.id, status: 'next_action' });
+      setEditingTask(null);
+      addToast('המשימה הפכה לפרויקט');
+    } catch { addToast('שגיאה בהפיכה לפרויקט'); }
+  };
+
   const handleCompleteProject = async (id) => {
     try {
       await updateProject(id, { is_active: false });
@@ -275,6 +285,7 @@ export default function ProjectsView() {
           projects={projects}
           onSave={handleEditSave}
           onClose={() => setEditingTask(null)}
+          onConvertToProject={handleConvertToProject}
         />
       )}
     </div>

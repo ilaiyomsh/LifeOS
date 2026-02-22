@@ -1,24 +1,14 @@
 import { memo, useState } from 'react';
-import { Check, Clock, AlertCircle, MoreHorizontal, Trash2, CalendarDays, Hourglass, ChevronDown, Repeat } from 'lucide-react';
+import { Check, Clock, AlertCircle, MoreHorizontal, Trash2, CalendarDays, Hourglass, Repeat } from 'lucide-react';
 import { cn, formatDate, isOverdue, getTaskStaleness } from '../../lib/utils';
 import { AREAS, PRIORITY_COLORS } from '../../lib/constants';
-import * as localDb from '../../lib/localDb';
 
 const TaskItem = memo(function TaskItem({ task, onComplete, onDelete, onEdit, showArea = true }) {
   const [showMenu, setShowMenu] = useState(false);
-  const [showSubtasks, setShowSubtasks] = useState(false);
 
   const area = task.area ? AREAS[task.area] : null;
   const overdue = isOverdue(task.due_date) && task.status !== 'done';
   const staleness = getTaskStaleness(task);
-
-  const subtasks = localDb.getSubtasks(task.id);
-  const doneCount = subtasks.filter((s) => s.is_done).length;
-  const hasSubtasks = subtasks.length > 0;
-
-  const toggleSubtask = (id, isDone) => {
-    localDb.updateSubtask(id, { is_done: !isDone });
-  };
 
   return (
     <div className={cn(
@@ -77,15 +67,6 @@ const TaskItem = memo(function TaskItem({ task, onComplete, onDelete, onEdit, sh
                 <AlertCircle size={11} />{staleness.label}
               </span>
             )}
-            {hasSubtasks && (
-              <button
-                onClick={(e) => { e.stopPropagation(); setShowSubtasks(!showSubtasks); }}
-                className="text-[11px] text-slate-500 dark:text-gray-400 bg-slate-100 dark:bg-gray-700 px-1.5 py-0.5 rounded flex items-center gap-0.5 active:bg-slate-200 dark:active:bg-gray-600"
-              >
-                <Check size={10} />{doneCount}/{subtasks.length}
-                <ChevronDown size={10} className={cn('transition-transform', showSubtasks && 'rotate-180')} />
-              </button>
-            )}
             {task.tags?.length > 0 && task.tags.map((tag) => (
               <span key={tag} className="text-[10px] text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 px-1.5 py-0.5 rounded">{tag}</span>
             ))}
@@ -122,22 +103,6 @@ const TaskItem = memo(function TaskItem({ task, onComplete, onDelete, onEdit, sh
         )}
       </div>
 
-      {showSubtasks && hasSubtasks && (
-        <div className="px-4 pb-3 pt-0 border-t border-slate-50 dark:border-gray-700 space-y-1">
-          {subtasks.map((sub) => (
-            <button
-              key={sub.id}
-              onClick={() => toggleSubtask(sub.id, sub.is_done)}
-              className="flex items-center gap-2 w-full text-right py-1.5 active:bg-slate-50 dark:active:bg-gray-700 rounded touch-target"
-            >
-              <div className={cn('w-5 h-5 rounded border flex items-center justify-center shrink-0', sub.is_done ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300 dark:border-gray-600')}>
-                {sub.is_done && <Check size={10} className="text-white" />}
-              </div>
-              <span className={cn('text-xs', sub.is_done ? 'line-through text-slate-400 dark:text-gray-500' : 'text-slate-600 dark:text-gray-300')}>{sub.title}</span>
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 });

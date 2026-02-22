@@ -13,7 +13,7 @@ import { AREAS, AREA_LIST, GTD } from '../../lib/constants';
 
 export default function ActionsView() {
   const { tasks, addTask, updateTask, deleteTask, completeTask } = useTasks({ status: ['next_action', 'waiting_for'] });
-  const { projects } = useProjects({ is_active: true });
+  const { projects, addProject } = useProjects({ is_active: true });
   const { addToast } = useToast();
   const [areaFilter, setAreaFilter] = useState(null);
   const [smartFilter, setSmartFilter] = useState(null);
@@ -81,6 +81,16 @@ export default function ActionsView() {
 
   const handleEditSave = async (id, updates) => {
     try { await updateTask(id, updates); setEditingTask(null); addToast('משימה עודכנה'); } catch { addToast('שגיאה בשמירה'); }
+  };
+
+  const handleConvertToProject = async (task) => {
+    if (!task.area) { addToast('יש לבחור תחום לפני הפיכה לפרויקט'); return; }
+    try {
+      const project = await addProject({ title: task.title, area: task.area });
+      await updateTask(task.id, { project_id: project.id, status: 'next_action' });
+      setEditingTask(null);
+      addToast('המשימה הפכה לפרויקט');
+    } catch { addToast('שגיאה בהפיכה לפרויקט'); }
   };
 
   const totalActions = focusTasks.length + otherActions.length;
@@ -230,7 +240,7 @@ export default function ActionsView() {
         </div>
       )}
 
-      {editingTask && <EditTaskModal task={editingTask} projects={projects} onSave={handleEditSave} onClose={() => setEditingTask(null)} />}
+      {editingTask && <EditTaskModal task={editingTask} projects={projects} onSave={handleEditSave} onClose={() => setEditingTask(null)} onConvertToProject={handleConvertToProject} />}
       {focusTask && <FocusTimer task={focusTask} onClose={() => setFocusTask(null)} onComplete={handleComplete} />}
     </div>
   );

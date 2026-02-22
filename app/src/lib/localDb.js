@@ -124,47 +124,6 @@ export function deleteTask(id) {
   emit('tasks');
 }
 
-// --- Subtasks ---
-
-export function getSubtasks(taskId) {
-  const rows = getStore('subtasks').filter((r) => r.task_id === taskId);
-  rows.sort((a, b) => (a.position || 0) - (b.position || 0));
-  return rows;
-}
-
-export function addSubtask(taskId, title) {
-  const rows = getStore('subtasks');
-  const existing = rows.filter((r) => r.task_id === taskId);
-  const subtask = {
-    id: generateId(),
-    task_id: taskId,
-    title: title || '',
-    is_done: false,
-    position: existing.length,
-    created_at: new Date().toISOString(),
-  };
-  rows.push(subtask);
-  setStore('subtasks', rows);
-  emit('subtasks');
-  return subtask;
-}
-
-export function updateSubtask(id, updates) {
-  const rows = getStore('subtasks');
-  const idx = rows.findIndex((r) => r.id === id);
-  if (idx === -1) throw new Error('Subtask not found');
-  rows[idx] = { ...rows[idx], ...updates };
-  setStore('subtasks', rows);
-  emit('subtasks');
-  return rows[idx];
-}
-
-export function deleteSubtask(id) {
-  const rows = getStore('subtasks');
-  setStore('subtasks', rows.filter((r) => r.id !== id));
-  emit('subtasks');
-}
-
 // --- Projects ---
 
 export function getProjects(filters = {}) {

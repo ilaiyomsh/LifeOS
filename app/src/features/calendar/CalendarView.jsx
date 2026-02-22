@@ -53,7 +53,7 @@ export default function CalendarView() {
 
   const { tasks, updateTask, completeTask } = useTasks({});
   const { events, addEvent, deleteEvent } = useEvents(dateRange.from, dateRange.to);
-  const { projects } = useProjects({ is_active: true });
+  const { projects, addProject } = useProjects({ is_active: true });
   const { addToast } = useToast();
 
   // Scheduled tasks grouped by date
@@ -146,6 +146,16 @@ export default function CalendarView() {
     } catch {
       addToast('שגיאה');
     }
+  };
+
+  const handleConvertToProject = async (task) => {
+    if (!task.area) { addToast('יש לבחור תחום לפני הפיכה לפרויקט'); return; }
+    try {
+      const project = await addProject({ title: task.title, area: task.area });
+      await updateTask(task.id, { project_id: project.id, status: 'next_action' });
+      setEditingTask(null);
+      addToast('המשימה הפכה לפרויקט');
+    } catch { addToast('שגיאה בהפיכה לפרויקט'); }
   };
 
   const getDayItems = useCallback((dateStr) => {
@@ -417,7 +427,7 @@ export default function CalendarView() {
       )}
 
       {editingTask && (
-        <EditTaskModal task={editingTask} projects={projects} onSave={handleEditSave} onClose={() => setEditingTask(null)} />
+        <EditTaskModal task={editingTask} projects={projects} onSave={handleEditSave} onClose={() => setEditingTask(null)} onConvertToProject={handleConvertToProject} />
       )}
     </div>
   );

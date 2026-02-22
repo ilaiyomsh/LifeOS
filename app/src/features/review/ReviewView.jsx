@@ -20,7 +20,7 @@ const STEPS = [
 
 export default function ReviewView() {
   const { tasks: allTasks, updateTask, deleteTask, completeTask } = useTasks({});
-  const { projects } = useProjects({ is_active: true });
+  const { projects, addProject } = useProjects({ is_active: true });
   const { addToast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -124,6 +124,16 @@ export default function ReviewView() {
     } catch {
       addToast('שגיאה');
     }
+  };
+
+  const handleConvertToProject = async (task) => {
+    if (!task.area) { addToast('יש לבחור תחום לפני הפיכה לפרויקט'); return; }
+    try {
+      const project = await addProject({ title: task.title, area: task.area });
+      await updateTask(task.id, { project_id: project.id, status: 'next_action' });
+      setEditingTask(null);
+      addToast('המשימה הפכה לפרויקט');
+    } catch { addToast('שגיאה בהפיכה לפרויקט'); }
   };
 
   // Generate next 7 days
@@ -397,6 +407,7 @@ export default function ReviewView() {
           projects={projects}
           onSave={handleEditSave}
           onClose={() => setEditingTask(null)}
+          onConvertToProject={handleConvertToProject}
         />
       )}
     </div>

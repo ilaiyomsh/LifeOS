@@ -13,7 +13,7 @@ import { AREA_LIST } from '../../lib/constants';
 
 export default function InboxView() {
   const { tasks, addTask, updateTask, deleteTask } = useTasks({ status: 'inbox' });
-  const { projects } = useProjects({ is_active: true });
+  const { projects, addProject } = useProjects({ is_active: true });
   const { addToast } = useToast();
   const [mode, setMode] = useState('capture'); // 'capture' | 'clarify'
   const [clarifyIndex, setClarifyIndex] = useState(0);
@@ -105,6 +105,16 @@ export default function InboxView() {
     } catch {
       addToast('שגיאה בשמירה');
     }
+  };
+
+  const handleConvertToProject = async (task) => {
+    if (!task.area) { addToast('יש לבחור תחום לפני הפיכה לפרויקט'); return; }
+    try {
+      const project = await addProject({ title: task.title, area: task.area });
+      await updateTask(task.id, { project_id: project.id, status: 'next_action' });
+      setEditingTask(null);
+      addToast('המשימה הפכה לפרויקט');
+    } catch { addToast('שגיאה בהפיכה לפרויקט'); }
   };
 
   return (
@@ -367,6 +377,7 @@ export default function InboxView() {
           projects={projects}
           onSave={handleEditSave}
           onClose={() => setEditingTask(null)}
+          onConvertToProject={handleConvertToProject}
         />
       )}
     </div>

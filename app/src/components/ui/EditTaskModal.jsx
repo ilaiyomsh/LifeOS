@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
-import { X, Star, Plus, Trash2, Check, Repeat } from 'lucide-react';
+import { useState } from 'react';
+import { X, Star, Plus, FolderKanban, Repeat } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { AREA_LIST, PRIORITY_LABELS } from '../../lib/constants';
-import * as localDb from '../../lib/localDb';
 
 const RECURRING_OPTIONS = [
   { value: null, label: 'ללא' },
@@ -29,15 +28,9 @@ function buildFormFromTask(task) {
   };
 }
 
-export default function EditTaskModal({ task, projects = [], onSave, onClose }) {
+export default function EditTaskModal({ task, projects = [], onSave, onClose, onConvertToProject }) {
   const [form, setForm] = useState(() => buildFormFromTask(task));
-  const [subtasks, setSubtasks] = useState([]);
-  const [newSubtask, setNewSubtask] = useState('');
   const [newTag, setNewTag] = useState('');
-
-  useEffect(() => {
-    if (task?.id) setSubtasks(localDb.getSubtasks(task.id));
-  }, [task?.id]);
 
   if (!task) return null;
 
@@ -54,23 +47,6 @@ export default function EditTaskModal({ task, projects = [], onSave, onClose }) 
       waiting_on: form.waiting_on.trim() || null,
     };
     onSave(task.id, updates);
-  };
-
-  const handleAddSubtask = () => {
-    if (!newSubtask.trim()) return;
-    const sub = localDb.addSubtask(task.id, newSubtask.trim());
-    setSubtasks([...subtasks, sub]);
-    setNewSubtask('');
-  };
-
-  const handleToggleSubtask = (id, isDone) => {
-    localDb.updateSubtask(id, { is_done: !isDone });
-    setSubtasks(subtasks.map((s) => s.id === id ? { ...s, is_done: !isDone } : s));
-  };
-
-  const handleDeleteSubtask = (id) => {
-    localDb.deleteSubtask(id);
-    setSubtasks(subtasks.filter((s) => s.id !== id));
   };
 
   const handleAddTag = () => {
@@ -107,34 +83,6 @@ export default function EditTaskModal({ task, projects = [], onSave, onClose }) 
 
           <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}
             className={inputClass} placeholder="הערות..." rows={2} dir="rtl" />
-
-          {/* Subtasks */}
-          <div>
-            <label className={labelClass}>משימות משנה</label>
-            <div className="space-y-1 mb-2">
-              {subtasks.map((sub) => (
-                <div key={sub.id} className="flex items-center gap-2">
-                  <button type="button" onClick={() => handleToggleSubtask(sub.id, sub.is_done)}
-                    className={cn('w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors touch-target',
-                      sub.is_done ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300 dark:border-gray-600 active:border-emerald-400')}>
-                    {sub.is_done && <Check size={12} className="text-white" />}
-                  </button>
-                  <span className={cn('flex-1 text-sm dark:text-gray-200', sub.is_done && 'line-through text-slate-400 dark:text-gray-500')}>{sub.title}</span>
-                  <button type="button" onClick={() => handleDeleteSubtask(sub.id)} className="p-1 text-slate-300 dark:text-gray-600 active:text-red-500 touch-target">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input type="text" value={newSubtask} onChange={(e) => setNewSubtask(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddSubtask(); } }}
-                className={inputClass} placeholder="הוסף משימת משנה..." dir="rtl" />
-              <button type="button" onClick={handleAddSubtask} className="px-3 py-2 bg-slate-100 dark:bg-gray-800 text-slate-600 dark:text-gray-300 rounded-lg active:bg-slate-200 dark:active:bg-gray-700 touch-target">
-                <Plus size={16} />
-              </button>
-            </div>
-          </div>
 
           {/* Area */}
           <div>
@@ -271,6 +219,17 @@ export default function EditTaskModal({ task, projects = [], onSave, onClose }) 
           <button type="submit" className="w-full bg-slate-900 dark:bg-blue-600 text-white rounded-xl py-3 text-sm font-semibold active:opacity-80 transition-colors touch-target">
             שמור
           </button>
+
+          {onConvertToProject && (
+            <button
+              type="button"
+              onClick={() => onConvertToProject(task)}
+              className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-xl active:bg-violet-100 dark:active:bg-violet-900/30 transition-colors touch-target"
+            >
+              <FolderKanban size={16} />
+              הפוך לפרויקט
+            </button>
+          )}
         </form>
       </div>
     </div>

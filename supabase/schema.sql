@@ -47,16 +47,6 @@ CREATE TABLE tasks (
   position          INTEGER DEFAULT 0
 );
 
--- Subtasks table
-CREATE TABLE subtasks (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  task_id     UUID NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
-  title       TEXT NOT NULL,
-  is_done     BOOLEAN DEFAULT false,
-  position    INTEGER DEFAULT 0,
-  created_at  TIMESTAMPTZ DEFAULT now()
-);
-
 -- Events table
 CREATE TABLE events (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -107,7 +97,6 @@ CREATE INDEX idx_tasks_due_date ON tasks(due_date);
 CREATE INDEX idx_tasks_scheduled_date ON tasks(scheduled_date);
 CREATE INDEX idx_tasks_focus ON tasks(is_focus) WHERE is_focus = true;
 CREATE INDEX idx_events_start ON events(start_at);
-CREATE INDEX idx_subtasks_task ON subtasks(task_id);
 CREATE INDEX idx_habits_active ON habits(is_active) WHERE is_active = true;
 CREATE INDEX idx_habit_logs_habit ON habit_logs(habit_id);
 CREATE INDEX idx_habit_logs_date ON habit_logs(date);
@@ -131,5 +120,4 @@ CREATE TRIGGER tasks_updated_at
 -- Enable realtime
 ALTER PUBLICATION supabase_realtime ADD TABLE tasks;
 ALTER PUBLICATION supabase_realtime ADD TABLE projects;
-ALTER PUBLICATION supabase_realtime ADD TABLE subtasks;
 ALTER PUBLICATION supabase_realtime ADD TABLE events;
