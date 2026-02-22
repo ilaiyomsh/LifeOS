@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Star, Plus, FolderKanban, Repeat } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn, lockBodyScroll, unlockBodyScroll } from '../../lib/utils';
 import { AREA_LIST, PRIORITY_LABELS } from '../../lib/constants';
 
 const RECURRING_OPTIONS = [
@@ -31,6 +31,8 @@ function buildFormFromTask(task) {
 export default function EditTaskModal({ task, projects = [], onSave, onClose, onConvertToProject }) {
   const [form, setForm] = useState(() => buildFormFromTask(task));
   const [newTag, setNewTag] = useState('');
+
+  useEffect(() => { lockBodyScroll(); return unlockBodyScroll; }, []);
 
   if (!task) return null;
 

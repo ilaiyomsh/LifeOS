@@ -60,3 +60,25 @@ export function formatMinutesAsHours(minutes) {
   const h = Math.round((minutes / 60) * 10) / 10;
   return `${h} שעות`;
 }
+
+// Lock body scroll when modal is open (prevents iOS Safari scroll-through)
+let lockCount = 0;
+let savedScrollY = 0;
+
+export function lockBodyScroll() {
+  if (lockCount === 0) {
+    savedScrollY = window.scrollY;
+    document.body.style.setProperty('--scroll-y', `${savedScrollY}px`);
+    document.body.classList.add('modal-open');
+  }
+  lockCount++;
+}
+
+export function unlockBodyScroll() {
+  lockCount = Math.max(0, lockCount - 1);
+  if (lockCount === 0) {
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('--scroll-y');
+    window.scrollTo(0, savedScrollY);
+  }
+}

@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, X, Timer, Coffee, Check } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn, lockBodyScroll, unlockBodyScroll } from '../../lib/utils';
 import * as localDb from '../../lib/localDb';
 
 const PRESETS = {
@@ -17,6 +17,8 @@ export default function FocusTimer({ task, onClose, onComplete }) {
   const [sessionsCount, setSessionsCount] = useState(0);
   const startTimeRef = useRef(null);
   const intervalRef = useRef(null);
+
+  useEffect(() => { lockBodyScroll(); return unlockBodyScroll; }, []);
 
   const config = PRESETS[preset];
   const totalSeconds = (phase === 'work' ? config.work : config.break) * 60;

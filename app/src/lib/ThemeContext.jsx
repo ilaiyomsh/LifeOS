@@ -13,11 +13,15 @@ export function ThemeProvider({ children }) {
 
   const applyTheme = useCallback((t) => {
     const root = document.documentElement;
-    if (t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    const isDark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (isDark) {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
+    // Update meta theme-color for mobile browser chrome / status bar
+    const meta = document.getElementById('theme-color-meta');
+    if (meta) meta.setAttribute('content', isDark ? '#030712' : '#f8fafc');
   }, []);
 
   useEffect(() => {

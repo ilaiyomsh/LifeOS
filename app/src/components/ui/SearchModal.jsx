@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Search, X } from 'lucide-react';
 import { searchTasks } from '../../lib/localDb';
-import { cn } from '../../lib/utils';
+import { cn, lockBodyScroll, unlockBodyScroll } from '../../lib/utils';
 import { AREAS, STATUS_LABELS } from '../../lib/constants';
 
 const STATUS_ORDER = ['inbox', 'next_action', 'waiting_for', 'someday', 'done'];
@@ -11,6 +11,7 @@ export default function SearchModal({ onClose, onSelectTask }) {
   const inputRef = useRef(null);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => { lockBodyScroll(); return unlockBodyScroll; }, []);
 
   useEffect(() => {
     const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
